@@ -1,0 +1,1782 @@
+item_id,item_name,total_quantity_ordered,order_lines_count
+,Coffee,7421,2473
+,Paratha,3379,1126
+,Tea,2296,766
+,Cocktails,2178,2178
+,Burgers,2044,2044
+,Filter Coffee,1809,609
+,Pasta,1779,1779
+,Pizza,1723,1723
+,Garlic Bread,1544,521
+,Lassi,1467,483
+,Biryani,1296,1296
+,Roti,1254,418
+,Salads,1184,1184
+,Sandwiches,981,981
+,Mocktails,924,924
+,Fish,864,864
+,Chicken Biryani,859,859
+,Butter Chicken,846,846
+,Aloo Paratha,840,273
+,Noodles,781,781
+,Waffles,761,761
+,Mutton Biryani,750,750
+,Tandoori Chicken,741,741
+,Beer,700,700
+,Steak,666,220
+,Nachos,658,658
+,Sea Food,654,654
+,Sandwich,622,622
+,Naan,618,205
+,Rolls,603,603
+,Ginger Tea,593,196
+,Gulab Jamun,579,579
+,Chicken Grill,576,576
+,Chop Suey,536,536
+,Butter Naan,532,180
+,Sweet Lassi,531,172
+,Maggi,521,521
+,Chaat,498,498
+,Dal Makhani,494,494
+,Thali,474,474
+,Masala Dosa,468,468
+,Long Island Iced Tea,455,148
+,Momos,453,453
+,Chole,448,448
+,Tiramisu,441,441
+,Pav Bhaji,435,435
+,French Fries,433,433
+,Salad,428,428
+,Vada,426,426
+,Friendly Staff,422,422
+,Hot Chocolate,415,415
+,Samosa,412,412
+,Buttermilk,411,411
+,Macaroon,400,400
+,Chicken Curry,399,399
+,Fries,384,384
+,Brownie,383,383
+,Fish Curry,366,366
+,Potato Wedges,366,366
+,Chocolate Icecreams,363,363
+,Chilli Chicken,358,358
+,Hot Coffee,349,118
+,Cheesecake,347,347
+,Paneer Tikka,344,344
+,Appam,342,342
+,Thick Shakes,333,333
+,Crispy Corn,321,321
+,Hyderabadi Biryani,303,303
+,Raita,298,298
+,Rumali Roti,295,96
+,Unlisted Mystery Dish,269,269
+,Waffle Cone,269,269
+,Panneer Butter Masala,268,268
+,Chicken Wings,265,265
+,Hot Gulab Jamun,261,261
+,Panipuri,245,245
+,Jal-jeera,244,244
+,Ice Cream Sandwich,241,241
+,Bbq Chicken Pizza,240,240
+,Burrito,240,240
+,Peri Peri Chicken,237,237
+,Chicken Tikka,235,235
+,Garlic Naan,233,75
+,Vegetable Biryani,231,231
+,Chicken Burger,229,229
+,Cappuccino,226,226
+,Shawarma,224,224
+,Chicken Shawarama,221,221
+,Cup Cake,217,217
+,Poha,217,217
+,Donut,206,206
+,Vanilla Ice Cream,205,205
+,Raj Kachori,204,204
+,Wine,203,203
+,Fruit Gateau,201,67
+,Kulcha,200,67
+,Apple Cider,198,198
+,Falafel,198,198
+,Ice Tea,198,65
+,Bruschettas,192,192
+,Tomato Soup,190,190
+,Mango Cider,184,184
+,Chicken Kebab,179,179
+,Breakfast Buffet,178,178
+,Masala Tea,177,58
+,Lobster Bisque,176,176
+,Neer Dosa,175,175
+,Chicken Steak,175,58
+,Masala Peanuts,173,173
+,Manchow Soup,171,171
+,Boti Kebab,167,167
+,Ghee Rice,161,161
+,Mustard Fish Curry,156,156
+,Pasta Alfredo,156,156
+,Thepla,155,155
+,Chicken Boneless Biryani,153,153
+,Ice Cream Roll,151,151
+,Rooftop Ambience,151,151
+,Tawa Pulav,151,151
+,Peri Peri Fries,146,146
+,Tandoori Roti,144,50
+,Chicken Lasagne,143,143
+,Mutton Chops,142,142
+,Pita Bread,141,47
+,Jeera Rice,139,139
+,Kebab Platter,139,139
+,Spaghetti,136,136
+,Lunch Buffet,135,135
+,Makke Ki Roti,134,45
+,Chicken Roll,133,133
+,Onion Rings,133,133
+,Kulfi,132,132
+,Craft Beer,130,130
+,Pancakes,129,129
+,Chocolate Cake,128,128
+,Lasagne,128,128
+,Chips,127,127
+,Dhokla,127,127
+,Dum Biryani,127,127
+,Chai,126,126
+,Chole Bhature,123,123
+,Salsa,122,122
+,Wings,120,120
+,Andhra Meal,118,118
+,Pork Chops,118,118
+,Sushi,118,118
+,Coorg Pandi Pizza,115,115
+,Mojito,115,115
+,Roast Chicken,115,115
+,Paneer Tikka Masala,114,114
+,Mutton Curry,113,113
+,Salted Caramel,113,113
+,Rabri,112,112
+,Peri Peri Chicken Burger,110,110
+,Veg Thali,110,110
+,Ferrero Rocher,109,109
+,Gelato,109,109
+,Veggie Pizza,109,109
+,Cheesy Garlic Bread,109,33
+,Sunday Brunch,107,107
+,Vegetarian,107,107
+,Curd Rice,105,105
+,Dragon Rolls,105,105
+,Chicken Satay,104,104
+,Beef Burger,103,103
+,Schezwan Burger,103,103
+,Spring Roll,103,103
+,Cheese Balls,102,102
+,Chicken Lollipop,102,102
+,Crispy Chicken,102,102
+,Idli,100,100
+,Sangria,100,100
+,Egg Curry,99,99
+,Hakka Noodles,99,99
+,Kheer,99,99
+,Paneer Biryani,99,99
+,Lime Soda,98,34
+,Mutton Roganjosh,97,97
+,Donne Biryani,96,96
+,Enchiladas,96,96
+,Chicken Majestic,95,95
+,Coffee Hazelnut,95,34
+,Stuffed Kulcha,95,34
+,Grape Juice,95,30
+,Margherita Pizza,94,94
+,Murgh Makhani,94,94
+,Pulpy Grape Juice,94,31
+,Chocolava,93,93
+,Amritsari Kulcha,93,28
+,Brownie Fudge,92,92
+,Daab Chingri,92,92
+,French Toast,92,92
+,Pongal,92,92
+,Faluda,91,91
+,Falafal Sandwich,90,90
+,Veg Platter,90,90
+,Chicken Nachos,89,89
+,Beef Chilli,88,88
+,Kesari Bath,88,88
+,Shahi Paneer,88,88
+,Dragon Chicken,87,87
+,Nutella Pancakes,87,87
+,Paneer Lollipop,87,87
+,Egg Bhurji,86,86
+,Hunan Chicken,86,86
+,Vada Pav,86,86
+,Kerala Parotta,85,85
+,Tacos,85,85
+,Dal Fry,83,83
+,Kharabath,82,82
+,Pepper Chicken,82,82
+,Prompt Service,82,82
+,Bengali Style Biryani,81,81
+,Paan Ice Cream,81,81
+,Salted Caramel Ice Cream,81,81
+,Cheese Paratha,81,27
+,Jalebi,80,80
+,Murgh Ghee Roast,80,80
+,Pork Ribs,80,80
+,Draught Beer,79,79
+,Lamb,79,79
+,Arabian Grape Juice,79,24
+,Barbeque Chicken,78,78
+,Prawn,78,78
+,Chicken Guntur,77,77
+,Stout,77,77
+,Beef Steak,77,27
+,Egg Biryani,75,75
+,Egg Chilli,74,74
+,Peri Peri Pizza,74,74
+,Chocolate Mousse,73,73
+,Decor,73,73
+,Masala Papad,73,73
+,Paan Kulfi,73,73
+,Malai Kofta,72,72
+,Prawn Ghee Roast,72,72
+,Rajma Chawal,72,72
+,Mughlai Paratha,72,24
+,Hot Chocolate Fudge,71,71
+,Skillet Cookie,71,71
+,Veg Burger,70,70
+,Wood Fire Pizza,70,70
+,Chicken Tikka Masala,69,69
+,Chocolate Truffle,69,69
+,Mini Idlis,69,69
+,Sev Puri,69,69
+,Veg Momos,69,69
+,Wedges,69,69
+,Chicken Dum Biryani,68,68
+,Rice Bowl,68,68
+,Chicken Momo,66,66
+,Chilli Paneer,66,66
+,Rice,66,66
+,Bread Pudding,66,22
+,Broccoli Soup,65,65
+,Khichda,65,65
+,Lobster,65,65
+,Salted Caramel Brownie,65,65
+,Chicken Sandwich,64,64
+,Dumplings,64,64
+,Fish Thali,64,64
+,Chicken Sizzler,63,63
+,Luchi,63,63
+,Curd Vadai,62,62
+,Masala Chai,62,62
+,Butterscotch Ice Cream,61,61
+,Idli Vada,61,61
+,Paya Soup,61,61
+,Rasmalai,61,61
+,Chicken Tikka Roll,60,60
+,Custard Apple Cream,60,60
+,Grilled Mushrooms,60,60
+,Mushroom Soup,60,60
+,Paneer Pizza,60,60
+,Apple Pie,59,59
+,Chicken Wrap,59,59
+,Thukpa,59,59
+,Cheesy Bites,58,58
+,Fried Fish,58,58
+,Bread Pakora,58,19
+,Blueberry Cheesecake,57,57
+,Eggless Cake,57,57
+,Chicken Butter Masala,56,56
+,Omelette,55,55
+,Paneer Parantha,55,55
+,Cheese Momos,54,54
+,Chicken Noodle,54,54
+,Fried Rice,54,54
+,Masala Poori,54,54
+,Miso Soup,54,54
+,Matka Lassi,54,21
+,Bread Omelette,54,17
+,Chicken Salad,53,53
+,Peri Chicken,53,53
+,Ravioli,53,53
+,Peri Peri Chicken Steak,53,18
+,Crispy Spinach Chicken,52,52
+,Tandoori Pomfret,52,52
+,Chocolate Pizza,51,51
+,Khamiri Roti,51,16
+,Chicken Bbq Burger,50,50
+,Obbattu,50,50
+,Tandoori Aloo,50,50
+,Akki Rottis,49,49
+,Cheesy Fries,49,49
+,Chicken Manchow Soup,49,49
+,Churros,49,49
+,Fish Grill,49,49
+,Honey Chilli Potatoes,49,49
+,Mousse,49,49
+,Paneer Tikka Pizza,49,49
+,Rasgulla,49,49
+,Shawarma Roll,49,49
+,Lemon Tea,49,18
+,Khao Suey,48,48
+,Clear Soup,47,47
+,Cosmopolitan,47,47
+,Fish Fingers,47,47
+,Murgh Patiala,47,47
+,Potato Salad,47,47
+,Benne Dosa,46,46
+,Hot Wings,46,46
+,Pork Momo,46,46
+,Paneer Bhurji,45,45
+,Tempura,45,45
+,Veg Sandwich,45,45
+,Matar Paneer,44,44
+,Tikka,44,44
+,Cheese Garlic Naan,44,16
+,Elaichi Tea,44,15
+,Sattu Paratha,44,14
+,Aamras,43,43
+,Chicken Burritos,43,43
+,Courteous Staff,43,43
+,Kit Kat Shake,43,43
+,Noodle,43,43
+,Phirni,43,43
+,Bajji,42,42
+,Dal Tadka,42,42
+,Jumbo Prawns,42,42
+,Kachori,42,42
+,Kadhai Paneer,42,42
+,Latte,42,42
+,Mirchi Bajji,42,42
+,Shotgun Chicken,42,42
+,Chocolate Drink,42,14
+,Masala Garlic Bread,42,13
+,Cheesy Pizza,41,41
+,Chilli Cheese Fries,41,41
+,Egg Puff,41,41
+,Hazelnut Cappuccino,41,41
+,Mutton Seekh,41,41
+,Peas Pulao,41,41
+,Prawn Crackers,41,41
+,White Sauce Pasta,41,41
+,Methi Paratha,41,15
+,Egg Paratha,41,12
+,Egg Noodles,40,40
+,English Breakfast,40,40
+,Mutton Fry,40,40
+,Rice Kheer,40,40
+,Filter Coffee Ice Cream,40,13
+,Brownie Chocolate,39,39
+,Eclair,39,39
+,Egg Pav Bhaji,39,39
+,Icecream Cake,39,39
+,Malpua,39,39
+,Mango Ice Cream,39,39
+,Paneer Satay,39,39
+,Al Faham Chicken,38,38
+,Buffalo Wings,38,38
+,Chicken Chettinad,38,38
+,Fried Cheese,38,38
+,Margarita,38,38
+,Rasam Vada,38,38
+,Vada Sambar,38,38
+,Badam Halwa,37,37
+,Burrito Bowl,37,37
+,Oreo Shake,37,37
+,Spinach Ravioli,37,37
+,Tender Coconut Ice Cream,37,37
+,Yakhni Pulao,37,37
+,Sugarcane Juice,37,13
+,Andhra Thali,36,36
+,Caesar Salad,36,36
+,Chicken Rara,36,36
+,Crab Sukha,36,36
+,Frittata,36,36
+,Lemon Basil Chicken,36,36
+,Nutella Waffle,36,36
+,Paneer Peri Peri,36,36
+,Thandai,36,36
+,Chicken Masala,35,35
+,Chicken Pakora,35,35
+,Chicken Salami,35,35
+,Lemon Chicken,35,35
+,Ragi Mudde,35,35
+,Tangdi Kabab,35,35
+,Chocolate Momos,34,34
+,Chowmein,34,34
+,Hara Bhara Kebab,34,34
+,Liti Chokha,34,34
+,Malai Kulfi,34,34
+,Mango Shake,34,34
+,Mushroom Masala,34,34
+,Veg Nachos,34,34
+,Wheat Beer,34,34
+,Mango Lassi,34,12
+,Jasmine Tea,34,10
+,Chocolate Decadence,33,33
+,Chocolate Sundae,33,33
+,Fish Fry,33,33
+,Rava Idli,33,33
+,Supreme Pizza,33,33
+,Orange Juice,33,10
+,Beef Fry,32,32
+,Caramel Pudding,32,32
+,Chicken Tikka Pizza,32,32
+,Chorizo Pav,32,32
+,Crispy Dosa,32,32
+,Nutella Cheesecake,32,32
+,Shikanji,32,32
+,Wonton Soup,32,32
+,Mango Mascarpone Gateau,32,10
+,Beef Curry,31,31
+,Eggs Benedict,31,31
+,Hyderabadi Dum Biryani,31,31
+,Palak Paneer,31,31
+,Popcorn Chicken,31,31
+,Spinach Corn Cheese,31,31
+,Wheat Roll,31,31
+,Cheese Steak Pizza,31,11
+,Tawa Roti,31,11
+,Dahi Vada,30,30
+,Pakoda,30,30
+,Sweet Corn Chicken Soup,30,30
+,Thai Green Curry,30,30
+,Upma,30,30
+,California Burrito,29,29
+,Healthy Breakfast,29,29
+,Marshmallow,29,29
+,Murgh Lababdar,29,29
+,Paneer Roll,29,29
+,Kori Roti,29,9
+,Aloo Samosa,28,28
+,Babycorn Manchurian,28,28
+,Bamboo Chicken,28,28
+,Basil Chicken,28,28
+,Chaach,28,28
+,Jalebi Rabri,28,28
+,Manchurian,28,28
+,Veg Kolhapuri,28,28
+,Irish Coffee,28,9
+,Alfam Chicken,27,27
+,Andhra Chilli Chicken,27,27
+,Brownie Shake,27,27
+,Calamari,27,27
+,Caramel Custard,27,27
+,Chocolate Milkshake,27,27
+,Firni,27,27
+,Lemonade,27,27
+,Pesto Pizza,27,27
+,Lemongrass Tea,27,9
+,Missi Rotis,27,8
+,Bagel,26,26
+,Banana Cake,26,26
+,Crunchy Veg Burger,26,26
+,French Chicken,26,26
+,Fruit Salad,26,26
+,Ginger Chai,26,26
+,Halwa,26,26
+,Honey Chilli Chicken,26,26
+,Kalmi Kebab,26,26
+,Maharaja Mac,26,26
+,Nitrogen Ice Cream,26,26
+,Oreo Cheesecake,26,26
+,Penne Pasta,26,26
+,Pesto Pasta,26,26
+,Pita Pocket,26,26
+,Prawn Curry,26,26
+,Rajma Masala,26,26
+,Laccha Paratha,26,9
+,Paneer Kulcha,26,8
+,Chicken Kebab Biryani,25,25
+,Chicken Manchurian,25,25
+,Chicken Peri Peri Kebab,25,25
+,Chilli Cheese,25,25
+,Chocolate Fantasy,25,25
+,Mocha Fudge,25,25
+,Mushroom Ragout,25,25
+,Mutton,25,25
+,Paneer Lababdar,25,25
+,Sabudana Vada,25,25
+,Belgian Chocoholic,24,24
+,Dabeli,24,24
+,Dahipuri,24,24
+,Dunkaccinos,24,24
+,Egg Roll,24,24
+,Hot Dog,24,24
+,Nutella Shake,24,24
+,Paneer Makhani,24,24
+,Pho,24,24
+,Plum Cake,24,24
+,Shahi Tukda,24,24
+,Tawa Chicken,24,24
+,Kothu Paratha,24,9
+,Corn Paratha,24,8
+,Cheese Roll,23,23
+,Croissants,23,23
+,Italian Icecream,23,23
+,Malai Chaap,23,23
+,Pan Cake,23,23
+,Paneer Tikka Biryani,23,23
+,Peri Peri Fish,23,23
+,Spicy Chicken,23,23
+,Virgin Mojito,23,23
+,Butter Kulcha,23,8
+,Stuffed Naan,23,7
+,Ambur Biryani,22,22
+,Banana Smoothie,22,22
+,Butter Beer,22,22
+,Chilli Pork,22,22
+,Chocolate Mocha,22,22
+,Corn Dog,22,22
+,Gajar Halwa,22,22
+,Ghee Jalebi,22,22
+,Haleem,22,22
+,Italian Wonder,22,22
+,Key Lime Pie,22,22
+,Masala Prawn,22,22
+,Masala Vada Pav,22,22
+,Milk Shake,22,22
+,Minestrone Soup,22,22
+,Rava Dosa,22,22
+,Veg Lasagna,22,22
+,Vegetable Stew,22,22
+,Virgin Sangria,22,22
+,Cold Coffee,22,7
+,Mosambi Juice,22,7
+,Bbq Chicken,21,21
+,Belgian Waffles,21,21
+,Brain Fry,21,21
+,Chicken Chatpata,21,21
+,Chicken Kolhapuri,21,21
+,Chicken Sukha,21,21
+,Club Chicken Sandwich,21,21
+,Crab Soup,21,21
+,Kimchi,21,21
+,Kung Pao Chicken,21,21
+,Masala Lemonade,21,21
+,Prawn Pizza,21,21
+,Pudina Chicken,21,21
+,Pyaz Kachori,21,21
+,Sweet Corn Soup,21,21
+,Veg Buffet,21,21
+,Veggie Roll,21,21
+,Whopper Burger,21,21
+,Afghan Chicken,20,20
+,Chicken Afghani Biryani,20,20
+,Chicken Soup,20,20
+,Chocolate Dessert,20,20
+,Corn Fry,20,20
+,Egg Roast,20,20
+,Lucknowi Biryani,20,20
+,Masala Idli,20,20
+,Meatballs,20,20
+,Mutton Madfoon,20,20
+,Mysore Pak,20,20
+,Orange Mojito,20,20
+,Thalassery Biryani,20,20
+,Thin Crust Pizza,20,20
+,Tom Yum Soup,20,20
+,Arabian Pulpy Grape Juice,20,7
+,Fruit Lassi,20,7
+,Almond Ice Cream,19,19
+,Bhel Puri,19,19
+,Biryani Combo,19,19
+,Chicken Bbq Wings,19,19
+,Chicken Quesadilla,19,19
+,Custard,19,19
+,Fiery Chicken,19,19
+,Garlic Butter Noodle,19,19
+,Hyderabadi Chicken Biryani,19,19
+,Mashed Potato,19,19
+,Millet Pizza,19,19
+,Mutton Mandi,19,19
+,Potli Biryani,19,19
+,Sweet Corn Pizza,19,19
+,Tai Pai Chicken,19,19
+,Veg Starter,19,19
+,Aloo Posto,18,18
+,Basmati Rice,18,18
+,Cake Jar,18,18
+,Chicken Nihari,18,18
+,Chocolava Cake,18,18
+,Creme Brulee,18,18
+,Dj,18,18
+,Minced Chicken Lasagne,18,18
+,Multi Grain Dosa,18,18
+,Mushroom Biryani,18,18
+,Mutton Soup,18,18
+,Pie,18,18
+,Rava Masala Dosa,18,18
+,Red Rice,18,18
+,Sizzler Brownie,18,18
+,Veggie Wrap,18,18
+,Beda Roti,18,7
+,Bun Maskas,17,17
+,Chicken Fries,17,17
+,Chicken Tacos,17,17
+,Deluxe Thali,17,17
+,Fish Biryani,17,17
+,Ghee Karam Dosa,17,17
+,Kali Dosa,17,17
+,Kosha Mangsho,17,17
+,Martini,17,17
+,Mint Oreo Shake,17,17
+,Pudding,17,17
+,Veggie Delight,17,17
+,Zinger Burger,17,17
+,Caramel Coffee,17,6
+,Gulkand Lassi,17,6
+,Barbecue Chicken Wings,16,16
+,Belgian Brew Beer,16,16
+,Belgian Fries,16,16
+,Butter Masala Dosa,16,16
+,Choco Fudge Brownie,16,16
+,Chocolate Bomb,16,16
+,Chocolate Lollipop,16,16
+,Chocolate Waffles,16,16
+,Clear Chicken Soup,16,16
+,Corn Sandwich,16,16
+,Kshatriya Kebab,16,16
+,Kullad Chai,16,16
+,Lamb Chops,16,16
+,Mango Phirni,16,16
+,Mexican Shawarma,16,16
+,Mutton Kosha,16,16
+,Non Veg Thali,16,16
+,Pad Thai,16,16
+,Paneer Ke Sholay,16,16
+,Peri Peri Chicken Wings,16,16
+,Pineapple Cake,16,16
+,Potato Fries,16,16
+,Rajma,16,16
+,Spicy Roll,16,16
+,Triple Chocolate,16,16
+,Ajwaini Paratha,16,5
+,Cheese Naan,16,5
+,Arugula Salad,15,15
+,Baklava,15,15
+,Banana Walnut,15,15
+,Bannoffee Pie,15,15
+,Bbq Buffet,15,15
+,Bbq Burger,15,15
+,Belgian Chocolate,15,15
+,Chaap,15,15
+,Chicken Malai Tikka,15,15
+,Chicken Pizza,15,15
+,Chicken Sekuwa,15,15
+,Dal Bati,15,15
+,Dal Bukhara,15,15
+,Empanadas,15,15
+,Fajitas,15,15
+,Hot Pot,15,15
+,Lunch Thali,15,15
+,Mudcake,15,15
+,Mushroom Sandwich,15,15
+,Nutella Brownie,15,15
+,Papaya Salad,15,15
+,Pizza Burger,15,15
+,Red Velvet Cake,15,15
+,Samosa Bun,15,15
+,Sweet Potato Mash,15,15
+,Swiss Roll,15,15
+,Veg Dum Biryani,15,15
+,Aglio Olio Pasta,14,14
+,Amritsari Paneer,14,14
+,Balti Gosht,14,14
+,Belgium Chocolate,14,14
+,Brinjal Curry,14,14
+,Cafe Mocha,14,14
+,Carrot Cake,14,14
+,Chicken Sausages,14,14
+,Chicken Shaptra,14,14
+,Dahi Kebab,14,14
+,Doi Katla,14,14
+,Dum Aloo,14,14
+,Falafel Roll,14,14
+,Jumbo Shawarma,14,14
+,Jumbo Vanjiram,14,14
+,Kathi Roll,14,14
+,Kunafa,14,14
+,Malabari Biryani,14,14
+,Phad Thai,14,14
+,Popcorn,14,14
+,Pot Biryani,14,14
+,Rice Paper Rolls,14,14
+,Roast Beef,14,14
+,Sake,14,14
+,Sausage Roll,14,14
+,Teriyaki Chicken,14,14
+,Tortilla Soup,14,14
+,Ginger Lemon Tea,14,4
+,American Chopsuey,13,13
+,Badam Milk,13,13
+,Chicken Patty,13,13
+,Chicken Tikka Biryani,13,13
+,Chilli Ramen,13,13
+,Chocolate Shake,13,13
+,Chocolate Truffle Cake,13,13
+,Crepe,13,13
+,Ferrero Rocher Milkshake,13,13
+,Fiery Paneer,13,13
+,Fried Rice Chicken,13,13
+,Fruit Parfait,13,13
+,Ginger Chicken,13,13
+,Gongura Chicken,13,13
+,Guntur Chicken Biryani,13,13
+,Indori Poha,13,13
+,Kadai Paneer,13,13
+,Kadhi,13,13
+,Kalmi Kabab,13,13
+,Lava Cake,13,13
+,Litti,13,13
+,Misal Pav,13,13
+,Mutton Kasha,13,13
+,Panner Tikka,13,13
+,Patiala Paneer,13,13
+,Peri Peri Pasta,13,13
+,Punjabi Chole,13,13
+,Raagi Dosa,13,13
+,Seekh Kebab,13,13
+,Shami Kebab,13,13
+,Veg Bao,13,13
+,Vegetable Moussaka,13,13
+,Coffee Toffee,13,5
+,Fruit Juices,13,4
+,Aam Panna,12,12
+,Almond Shake,12,12
+,Bhindi Masala,12,12
+,Bisi Bele Bhaath,12,12
+,Blueberry Shake,12,12
+,Cajun Fries,12,12
+,Chicken Fry,12,12
+,Chocolate Sandwich,12,12
+,Crispy Fried Chicken,12,12
+,French Omelette,12,12
+,Gajar Ka Halwa,12,12
+,Goan Fish Curry,12,12
+,Grilled Chicken Wrap,12,12
+,Grilled Sandwich,12,12
+,Hunan Tofu,12,12
+,Ice Cream Sundae,12,12
+,Kiwi Delight,12,12
+,Lamb Burger,12,12
+,Mango Blast,12,12
+,Mexican Fries,12,12
+,Mexican Patty,12,12
+,Nolen Gurer Ice Cream,12,12
+,Pizza Sandwich,12,12
+,Pork Tonkatsu,12,12
+,Quinoa Burger,12,12
+,Sweet Pongal,12,12
+,Teriyaki Chicken Wings,12,12
+,Thai Wok Chicken,12,12
+,Tortilla Chips,12,12
+,Keema Naan,12,5
+,Irish Coffee Cream,12,4
+,Almond Flakes,11,11
+,Almond Fudge,11,11
+,Andhra Biryani,11,11
+,Berryblast,11,11
+,Cajun Potato,11,11
+,Cake Pops,11,11
+,Cheese Maggi,11,11
+,Chicken Kshatriya,11,11
+,Choco Hazelnut,11,11
+,Crispy Chilli Corn,11,11
+,Dal Halwa,11,11
+,Egg Devils,11,11
+,Exotic Veg Pizza,11,11
+,Fry Prawns,11,11
+,Gosht Dum Biryani,11,11
+,Gundappa Donne Biryani,11,11
+,Hush Puppies,11,11
+,Idli Sambar,11,11
+,Jolada Rotti,11,11
+,Kadhai Mushroom,11,11
+,Kebab Biryani,11,11
+,Lemon Rice,11,11
+,Masala Fries,11,11
+,Mishti Doi,11,11
+,Orange Tart,11,11
+,Paan Shot,11,11
+,Papdi Chaat,11,11
+,Plain Dosa,11,11
+,Puri Sabzi,11,11
+,Smoked Pork,11,11
+,Spicy Chicken Wings,11,11
+,Kiwi Ice Tea,11,4
+,Mushroom Steak,11,4
+,Aloo Tikki Burger,10,10
+,Badam Phirni,10,10
+,Bloody Mary,10,10
+,Blueberry Pancakes,10,10
+,Chamcham,10,10
+,Chicken Dak Bunglow,10,10
+,Chicken Dumplings,10,10
+,Chicken Egg Roll,10,10
+,Chicken Keema Pizza,10,10
+,Chocolate Chip Cookie,10,10
+,Corn Soup,10,10
+,Dahi Baigan,10,10
+,Dahi Ke Kebab,10,10
+,Jalapeno Cheeseballs,10,10
+,Kabab Platter,10,10
+,Kadala Curry,10,10
+,Masala Vada,10,10
+,Memon Mutton Biryani,10,10
+,Mudpie,10,10
+,Mutton Rezala,10,10
+,Pizza Fries,10,10
+,Salmon,10,10
+,Sarson Ka Saag,10,10
+,Set Dosa,10,10
+,Stuffed Capsicum,10,10
+,Stuffed Mushroom,10,10
+,Watermelon Martini,10,10
+,White Pasta,10,10
+,Paneer Steak,10,4
+,Stuffed Paratha,10,4
+,Chicken Kothu Paratha,10,3
+,Masala Soda,10,3
+,Andhra Style Biryani,9,9
+,Andhra Style Chilli Chicken,9,9
+,Beef Stroganoff,9,9
+,Cajun Chicken,9,9
+,Cheese Burger,9,9
+,Chicken Biryani Combo,9,9
+,Chicken Mayo,9,9
+,Chinese Bhel,9,9
+,Chocolate Oreo,9,9
+,Chocolate Pancakes,9,9
+,Dahi Papadi Chaat,9,9
+,Dal Kichadi,9,9
+,Dance Floor,9,9
+,Fudge Cake,9,9
+,Gol Gappe,9,9
+,Gourmet Pizza,9,9
+,Granola Parfait,9,9
+,Jasmine Rice,9,9
+,Kaju Barfi,9,9
+,Khali Dosa,9,9
+,Lager,9,9
+,Meat Balls,9,9
+,Methi Murg,9,9
+,Mutton Roll,9,9
+,Onion Dosa,9,9
+,Pan Fried Momos,9,9
+,Peanut Butter Milkshake,9,9
+,Peri Fries,9,9
+,Protein Smoothie,9,9
+,Rice Bowls,9,9
+,Roast Pork,9,9
+,Spicy Tuna Roll,9,9
+,Tomato Rice,9,9
+,Veg Sushi,9,9
+,Kokum Juice,9,4
+,Chicken Baida Roti,9,3
+,Chur Chur Paratha,9,3
+,Passion Fruit Juice,9,3
+,Aloo Litti,8,8
+,Bacon Burger,8,8
+,Basil Pesto Chicken,8,8
+,Beef Kabab,8,8
+,Chana Daal,8,8
+,Cheese Dosa,8,8
+,Cheese Sandwich,8,8
+,Chicken Bucket,8,8
+,Chicken Stew,8,8
+,Chocolate Martini,8,8
+,Corn Cigars,8,8
+,Dark Chocolate Shake,8,8
+,Duck Roast,8,8
+,Espresso,8,8
+,Exotic Pizza,8,8
+,Galauti Kebab,8,8
+,Guava Ice Cream,8,8
+,Jumbo Ilish,8,8
+,Kaaram Biryani,8,8
+,Kesar Badam,8,8
+,Khara Bhath,8,8
+,Kiwi Lemonade,8,8
+,Laham Mandi,8,8
+,Masoor Dal,8,8
+,Mushroom Manchurian,8,8
+,Mutton Raan,8,8
+,Opera Cake,8,8
+,Pad Thai Noodle,8,8
+,Paneer Samosa,8,8
+,Pasta Arrabiata,8,8
+,Punjabi Chicken,8,8
+,Puttu Biryani,8,8
+,Sali Boti,8,8
+,Samosa Pav,8,8
+,Sauteed Vegetables,8,8
+,Seafood Soup,8,8
+,Soya Chaap,8,8
+,Spicy Crabmeat Soup,8,8
+,Sunday Morning Breakfast,8,8
+,Tandoori Burger,8,8
+,Veg Puff,8,8
+,Butter Tea,8,3
+,Almond Soup,7,7
+,Aloo Patty,7,7
+,Asparagus Risotto,7,7
+,Badami Holige,7,7
+,Banana Leaf Meal,7,7
+,Banana Walnut Cake,7,7
+,Basanti Pulao,7,7
+,Beef Teriyaki,7,7
+,Bhaji Dosa,7,7
+,Carbonara,7,7
+,Chettinad Thali,7,7
+,Chicken Breast,7,7
+,Chicken Chaap,7,7
+,Chicken Chowmein,7,7
+,Chicken Delight,7,7
+,Chicken Dosa,7,7
+,Chicken Frankie,7,7
+,Chinese Sizzlers,7,7
+,Chocolate Avalanche,7,7
+,Churma,7,7
+,Corn Fritters,7,7
+,Crab Roll,7,7
+,Crispy Masala Dosa,7,7
+,Crispy Water Chestnuts,7,7
+,Curry Crab,7,7
+,Dal Palak,7,7
+,German Chocolate,7,7
+,Idiyappam,7,7
+,Jumbo Chicken Roll,7,7
+,Kesar Pista,7,7
+,Kheer Kadam,7,7
+,Liver Fry,7,7
+,Malai Tikka,7,7
+,Masala Omelette,7,7
+,Motichoor Ladoo,7,7
+,Mutton Whopper,7,7
+,Nolen Gur,7,7
+,Outdoor Sitting Arrangement,7,7
+,Paneer Manchurian,7,7
+,Paneer Tikka Roll,7,7
+,Paneer Wrap,7,7
+,Pepperoni Pizza,7,7
+,Peri Peri Chicken Pizza,7,7
+,Pink Lemonade,7,7
+,Pizza Dosa,7,7
+,Pizza Parantha,7,7
+,Pork Chilli,7,7
+,Radhaballavi,7,7
+,Ragda Pattis,7,7
+,Rainbow Cake,7,7
+,Rajasthani Thali,7,7
+,Rose Faluda,7,7
+,Schezwan Rice,7,7
+,Tandoori Fish,7,7
+,Tandoori Paneer,7,7
+,Terminator Burger,7,7
+,Veg Dim Sums,7,7
+,Veg Shammi,7,7
+,Wonton,7,7
+,Bubble Tea,7,3
+,Hibiscus Tea,7,2
+,Malabari Paratha,7,2
+,Aalo Bhaja,6,6
+,Adrak Ke Panje,6,6
+,Aloo Palya,6,6
+,Apollo Fish,6,6
+,Barbeque Burger,6,6
+,Beef Momo,6,6
+,Blackcurrant Shake,6,6
+,Bonda,6,6
+,Brosted Chicken,6,6
+,Brownie Bomb,6,6
+,Bun Masala,6,6
+,Chana Masala,6,6
+,Cheese Chilli Toast,6,6
+,Chicken Dim Sum,6,6
+,Chicken Kheema Dosa,6,6
+,Chicken Thukpa,6,6
+,Chilli Idli,6,6
+,Choco Brownie,6,6
+,Chocolate Devotion,6,6
+,Chocolate Fudge,6,6
+,Chocolate Hazelnut Shake,6,6
+,Chocolate Peanut Butter,6,6
+,Cotton Candy,6,6
+,Crab Ghee Roast,6,6
+,Crispy Vada,6,6
+,Designer Cakes,6,6
+,Dessert Pizza,6,6
+,Disco Chicken,6,6
+,Falafel Wrap,6,6
+,Ferrero Rocher Shake,6,6
+,Garlic Rice,6,6
+,Ginger Lime Mojito,6,6
+,Gooey Chocolate Cupcake,6,6
+,Gur Ice Cream,6,6
+,Handi Biryani,6,6
+,Lamb Curry,6,6
+,Legendary Hrc Burger,6,6
+,Lemon Margarita,6,6
+,Macaroni,6,6
+,Masala Paneer,6,6
+,Mocha Chingri,6,6
+,Mughlai Biryani,6,6
+,Murgh Malai,6,6
+,Mutton Samosa,6,6
+,Open Dosa,6,6
+,Oreo Mcflurry,6,6
+,Paneer Cutlets,6,6
+,Paneer Pakora,6,6
+,Peri Peri Burger,6,6
+,Plain Rice,6,6
+,Prawn Biryani,6,6
+,Saag,6,6
+,Saffron Chai,6,6
+,Shrikhand,6,6
+,Som Tam,6,6
+,Strawberry Smoothie,6,6
+,Tandoori Momos,6,6
+,Tandoori Murgh Masala,6,6
+,Tender Coconut Payasam,6,6
+,Thai Chicken,6,6
+,Thai Wings,6,6
+,Tiramisu Martini,6,6
+,Wild Mushroom Risotto,6,6
+,Aloo Pyaz Paratha,6,2
+,Baked Bread,6,2
+,Coffee Shake,6,2
+,Grilled Steak,6,2
+,Almond Crunch,5,5
+,Alur Dom,5,5
+,Bbq Pizza,5,5
+,Beef Nachos,5,5
+,Benne Masala Dosa,5,5
+,Big Breakfast,5,5
+,Bingsu,5,5
+,Blueberry Cake,5,5
+,Brownie Sundae,5,5
+,Bun Omelette,5,5
+,Calzone,5,5
+,Chapa Pulusu,5,5
+,Cheese Vada Pav,5,5
+,Cheesy Chicken Wrap,5,5
+,Chicken Baguette,5,5
+,Chicken Doner,5,5
+,Chicken Dry Fry,5,5
+,Chicken Keema Burger,5,5
+,Chicken Manchurian Roll,5,5
+,Chicken Pasta,5,5
+,Chilli Paneer Pizza,5,5
+,Choco Almond,5,5
+,Chocolate Wonton,5,5
+,Club Sandwich,5,5
+,Coconut Chicken,5,5
+,Cream Soup,5,5
+,Crispy Chilli Chicken,5,5
+,Crispy Veg Burger,5,5
+,Custard Apple,5,5
+,Devils Chicken,5,5
+,Donne Chicken Biryani,5,5
+,Dum Aloo Kashmiri,5,5
+,Egg Custard,5,5
+,Egg Tadka,5,5
+,Espresso Martini,5,5
+,Fig Ice Cream,5,5
+,Fish N Chips,5,5
+,French Onion Soup,5,5
+,Gatte Ki Subzi,5,5
+,Gnocchi,5,5
+,Goan Thali,5,5
+,Gongura Chicken Biryani,5,5
+,Gujarati Food,5,5
+,Jhol Momos,5,5
+,Jumbo Royale Burger,5,5
+,Kallappam,5,5
+,Kesar Pista Kulfi,5,5
+,Laksa,5,5
+,Mai Thai,5,5
+,Malai Ghewar,5,5
+,Malaysian Noodles,5,5
+,Mango Cheesecake,5,5
+,Mud Crab Ravioli,5,5
+,Mushroom Ghee Roast,5,5
+,Mushroom Pasta,5,5
+,Mushroom Pizza,5,5
+,Mushroom Ramen,5,5
+,Mutton Pepper,5,5
+,Mutton Seekh Kebab,5,5
+,Mysore Masala Dosa,5,5
+,Oreo Milkshake,5,5
+,Palak Chaat,5,5
+,Palak Rice,5,5
+,Pane Pizza,5,5
+,Paneer Methi Malai,5,5
+,Paper Plain Dosa,5,5
+,Pork Burger,5,5
+,Potato Krisper,5,5
+,Potato Skins,5,5
+,Reshmi Kebab,5,5
+,Rice Pudding,5,5
+,Risotto,5,5
+,Scrambled Eggs,5,5
+,Shahi Biryani,5,5
+,Shammi Kebab Roll,5,5
+,Smoothie Bowl,5,5
+,Snicker Shake,5,5
+,Spicy Crab Soup,5,5
+,Spicy Paneer,5,5
+,Spinach Pizza,5,5
+,Sponge Cake,5,5
+,Sprout Salad,5,5
+,Stir Fried Noodles,5,5
+,Tabakh Maaz,5,5
+,Tender Coconut Chicken,5,5
+,Truffle,5,5
+,Udon Noodle,5,5
+,Ulvacharu Biryani,5,5
+,Vietnamese Pho,5,5
+,Whole Meat Shawarma,5,5
+,Brewed Coffee,5,2
+,Chole Kulcha,5,2
+,Makkai Roti,5,2
+,Salmon Steak,5,2
+,Achari Paneer,4,4
+,Banana Nutella,4,4
+,Barbeque Chicken Pizza,4,4
+,Basil Pesto,4,4
+,Beef Shwarma,4,4
+,Belgian Chocolate Waffle,4,4
+,Big Bang Shake,4,4
+,Biryani Box,4,4
+,Blueberry Muffin,4,4
+,Brownie Milkshake,4,4
+,Butter Garlic Momos,4,4
+,Cheese Pasta,4,4
+,Cheesy Chicken Burger,4,4
+,Cheesy Maxx Pizza,4,4
+,Chicken,4,4
+,Chicken Beda,4,4
+,Chicken Drumstick,4,4
+,Chicken Handi,4,4
+,Chicken Honey,4,4
+,Chicken Keema,4,4
+,Chilli Potatoes,4,4
+,Chinese Chop Suey,4,4
+,Chocochip Cake,4,4
+,Chocolate Bar,4,4
+,Chocolate Ganache,4,4
+,Cut Fruits,4,4
+,Daal Baati Churma,4,4
+,Dahi Bhalle,4,4
+,Death By Chocolate,4,4
+,Deluxe Punjabi Thali,4,4
+,Egg Ghee Roast,4,4
+,Egg Maggi,4,4
+,Egg Pakora,4,4
+,Egg Salad,4,4
+,Egg Sandwich,4,4
+,Elaneer Payasam,4,4
+,Falafel Plate,4,4
+,Farm Pizza,4,4
+,Fiery Potato,4,4
+,Firewood Biryani,4,4
+,Fruit Bowl,4,4
+,Fruit Custard,4,4
+,Gelato Ice Cream,4,4
+,Ghee Roast Paneer,4,4
+,Gobi Tikka,4,4
+,Greek Salad,4,4
+,Gujarati Thali,4,4
+,Hariyali Chicken,4,4
+,Hazelnut Ice Cream,4,4
+,Hummus Falafel,4,4
+,Indian Sweets,4,4
+,Kadhai Murgh,4,4
+,Keema Roll,4,4
+,Korean Ice Cream,4,4
+,Kozhi Biryani,4,4
+,Lahori Chicken,4,4
+,Litchi Cake,4,4
+,Maki Roll,4,4
+,Malgoum Shawarma,4,4
+,Mapo Tofu,4,4
+,Masala Corn,4,4
+,Mayo Sandwich,4,4
+,Mint Masala,4,4
+,Mint Raita,4,4
+,Mochi Ice Cream,4,4
+,Mousse Cup,4,4
+,Mozzarella Sticks,4,4
+,Mumbai Sandwich,4,4
+,Mushroom Bruschettas,4,4
+,Mushroom Nuggets,4,4
+,Mushroom Quiche,4,4
+,Mushroom Roll,4,4
+,Mutton Pasanda,4,4
+,Mutton Stew,4,4
+,Mutton Thali,4,4
+,Oreo Waffle,4,4
+,Paan Shake,4,4
+,Palak Chicken,4,4
+,Paneer Burger,4,4
+,Paneer Tikki,4,4
+,Panna Cotta,4,4
+,Paper Masala Dosa,4,4
+,Pasta Salad,4,4
+,Peanut Butter Smoothie,4,4
+,Peppy Paneer Pizza,4,4
+,Peri Peri Prawn,4,4
+,Peri Peri Sizzler,4,4
+,Petha,4,4
+,Pinacolada,4,4
+,Pineapple Passion,4,4
+,Potato Cheese Ball,4,4
+,Potato Wrap,4,4
+,Prawn Gassi,4,4
+,Ramen,4,4
+,Red Velvet,4,4
+,Red Velvet Brownie,4,4
+,Roasted Almonds,4,4
+,Saffron Pilaf,4,4
+,Sarso Da Saag,4,4
+,Seekh Roll,4,4
+,Squid Fry,4,4
+,Strawberry Sundae,4,4
+,Sunday Brunches,4,4
+,Tender Coconut Pudding,4,4
+,Veg Ball Manchurian,4,4
+,Veg Bonanza Pizza,4,4
+,Veg Fried Rice,4,4
+,Veg Pulao,4,4
+,Watermelon Mojito,4,4
+,Coffee Walnut,4,1
+,Iced Coffee,4,1
+,Keema Roti,4,1
+,Mutton Baida Roti,4,1
+,Wheat Paratha,4,1
+,Zaraja Paratha,4,1
+,Afghani Biryani,3,3
+,Alpham Chicken,3,3
+,Americano,3,3
+,Anjal Masala Fry,3,3
+,Bamboo Chicken Biryani,3,3
+,Banana Split,3,3
+,Banana Waffles,3,3
+,Bhuna Chicken,3,3
+,Brownie Fudge Sundae,3,3
+,Bruschetta Bites,3,3
+,Butter Cookies,3,3
+,Butter Garlic Prawns,3,3
+,Butter Paneer,3,3
+,Chaat Platter,3,3
+,Cheesecake Ice Cream,3,3
+,Cheesy Juicy Burger,3,3
+,Chicken Breast Burger,3,3
+,Chicken Calzone,3,3
+,Chicken Gyoza,3,3
+,Chicken Keema Roll,3,3
+,Chicken Paprika,3,3
+,Chicken Thali,3,3
+,Chicken Tikka Sandwich,3,3
+,Chicken Whopper Burger,3,3
+,Chilli Prawns,3,3
+,Chocolate Cheese,3,3
+,Chocolate Cupcake,3,3
+,Chocolate Donut,3,3
+,Chocolate Hazelnut,3,3
+,Chocolate Overload,3,3
+,Coconut Mousse,3,3
+,Coconut Payassam,3,3
+,Cookie Crunch,3,3
+,Coriander Soup,3,3
+,Crab Fry,3,3
+,Crab Masala,3,3
+,Cream Cake,3,3
+,Date Pancakes,3,3
+,Dindigul Biryani,3,3
+,Dragon Noodles,3,3
+,Egg Dosa,3,3
+,Egg Fried Rice,3,3
+,Egg Masala,3,3
+,Egg Pepper Fry,3,3
+,Falafel Burger,3,3
+,Fattoush,3,3
+,Fish Tikka,3,3
+,Freak Shake,3,3
+,Ghee Masala Dosa,3,3
+,Gongura Biryani,3,3
+,Gooey Brownie,3,3
+,Hazelnut Mousse Flan,3,3
+,Hummus Platter,3,3
+,Jalapeno Poppers,3,3
+,Kamikaze,3,3
+,Kebab Manchurian,3,3
+,Khau Suey,3,3
+,Kitkat Waffles,3,3
+,Kokum Sharbat,3,3
+,Lemon Mojito,3,3
+,Lemon Tarts,3,3
+,Malacca Curry,3,3
+,Manchurian Roll,3,3
+,Manchurian Samosa,3,3
+,Masala Chaach,3,3
+,Masala Pav,3,3
+,Mc Flurry,3,3
+,Mezze Platter,3,3
+,Milky Way,3,3
+,Mixed Fried Rice,3,3
+,Momos Burger,3,3
+,Multani Paneer Tikka,3,3
+,Muradabadi Biryani,3,3
+,Murgh Kalimirch,3,3
+,Murgh Platter,3,3
+,Nalli Nihari,3,3
+,Nati Biryani,3,3
+,Onion Pakoda,3,3
+,Pahari Chicken,3,3
+,Paneer Bhurji Roll,3,3
+,Paneer Malai Tikka,3,3
+,Paya,3,3
+,Penne Arrabiata Pasta,3,3
+,Peppy Paneer,3,3
+,Peri Peri Drizzle,3,3
+,Pesarattu,3,3
+,Poori Bhaji,3,3
+,Potato Curry,3,3
+,Rajdhani Thali,3,3
+,Red Snapper,3,3
+,Red Velvet Ice Cream,3,3
+,Rice Noodles,3,3
+,Roast Beef Sandwich,3,3
+,Sabudana Kheer,3,3
+,Saffron Rice,3,3
+,Sikandari Raan,3,3
+,Singapore Noodles,3,3
+,Sitaphal Ice Cream,3,3
+,Smokey Marzano Pizza,3,3
+,Subz-e-royal Pot Rice,3,3
+,Sushi Platter,3,3
+,Sweet Potato Fries,3,3
+,Sweet Potato Latte,3,3
+,Taco Soup,3,3
+,Tamatar Ka Shorba,3,3
+,Tempura Prawns,3,3
+,Thai Red Curry,3,3
+,Thai Rice,3,3
+,Tikki,3,3
+,Tomato Ragout,3,3
+,Veg Supreme Pizza,3,3
+,Vellarikka Pattanam,3,3
+,Virgin Pinacolada,3,3
+,Chura Paratha,3,1
+,Rose Tea,3,1
+,Steamed Rice,3,1
+,Watermelon Juice,3,1
+,Abbabi Chicken,2,2
+,Aloo Curry,2,2
+,Aloo Tikki,2,2
+,Aloo Tikki Chat,2,2
+,Angara Kebab,2,2
+,Anjal Tava Fry,2,2
+,Apple Pie Ice Cream,2,2
+,Arabic Cuisine,2,2
+,Avocado Toast,2,2
+,Bacon Pizza,2,2
+,Badami Kheer,2,2
+,Bbq Pork,2,2
+,Bharwan Mushroom,2,2
+,Bhuna Gosht,2,2
+,Blackberry Cheesecake,2,2
+,Bombay Bhel,2,2
+,Breakfast Platter,2,2
+,Brewed Beer,2,2
+,Brownie Waffle,2,2
+,Bubble Gum Shake,2,2
+,Butter Chicken Pizza,2,2
+,Caramel Ganache,2,2
+,Chaai,2,2
+,Cheese Burst Pizza,2,2
+,Cheese Sandwiches,2,2
+,Cheesiano Pizza,2,2
+,Cheesy Chicken,2,2
+,Cheesy Chicken Fries,2,2
+,Chhole Bhature,2,2
+,Chicken Bharta,2,2
+,Chicken Kasha,2,2
+,Chicken Lazeez,2,2
+,Chicken Malai Roll,2,2
+,Chicken Meal,2,2
+,Chicken Penne,2,2
+,Chicken Pepper Dry,2,2
+,Chicken Popcorn,2,2
+,Chicken Pot Pie,2,2
+,Chicken Quiche,2,2
+,Chicken Seekh Roll,2,2
+,Chicken Sholey Kebab,2,2
+,Chicken Shorba,2,2
+,Chicken Snacker,2,2
+,Chicken Tikka Wrap,2,2
+,Chicken Whopper,2,2
+,Chicken Wonton Soup,2,2
+,Chilli Babycorn,2,2
+,Chilli Garlic Noodles,2,2
+,Choco Bomb,2,2
+,Chocolate Almond,2,2
+,Chocolate Fondue,2,2
+,Chocolate Popcorn,2,2
+,Choux Pastry,2,2
+,Corn Balls,2,2
+,Crab Sushi,2,2
+,Cream Mango,2,2
+,Creme Caramel,2,2
+,Crispy Babycorn,2,2
+,Crispy Honey Chilli Chicken,2,2
+,Crispy Prawns,2,2
+,Crunchy Waffles,2,2
+,Dahi Ke Kabab,2,2
+,Dhokar Dalna,2,2
+,Doi Murgi,2,2
+,Double Ka Meetha,2,2
+,Egg Wrap,2,2
+,Executive Chicken Biryani,2,2
+,Filter Kaapi,2,2
+,Fish Chilli,2,2
+,Fried Noodles,2,2
+,Fruit Cake,2,2
+,Fry Momos,2,2
+,Ganna Chicken,2,2
+,Garlic Chicken,2,2
+,Ginger Pork,2,2
+,Golden Fried Prawns,2,2
+,Gong Bao Chicken,2,2
+,Gooey Chocolate Cake,2,2
+,Greek Sandwich,2,2
+,Hazelnut Cake,2,2
+,Hyderabadi Mutton Biryani,2,2
+,Hyderabadi Style Biryani,2,2
+,Idli Chutney,2,2
+,Italian Fries,2,2
+,Kaju Katli,2,2
+,Kanda Poha,2,2
+,Kastoori Chicken,2,2
+,Keema Biryani,2,2
+,Keema Pav,2,2
+,Laksa Soup,2,2
+,Lemon Chicken Roll,2,2
+,Lemongrass Chicken,2,2
+,Liege Waffle,2,2
+,Lobster Dumplings,2,2
+,Madagascar Chocolate,2,2
+,Maddur Vada,2,2
+,Maki Sushi,2,2
+,Malabar Fish Curry,2,2
+,Malai Broccoli,2,2
+,Malai Roll,2,2
+,Marwai Sukka,2,2
+,Matka Kulfi,2,2
+,Mocha Waffle,2,2
+,Monster Burger,2,2
+,Mushroom Momo,2,2
+,Mutton Keema,2,2
+,Mutton Keema Balls,2,2
+,Mutton Pepper Fry,2,2
+,Mutton Raan Biriyani,2,2
+,Mutton Sukha,2,2
+,Nasi Goreng,2,2
+,Nepali Thali,2,2
+,Nihari,2,2
+,Nutella Cookie,2,2
+,Nutella Ice Cream,2,2
+,Onion Rava Masala Dosa,2,2
+,Palak Dosa,2,2
+,Pandi Curry,2,2
+,Paneer Chatpata,2,2
+,Paneer Dosa,2,2
+,Paneer Pasanda,2,2
+,Paneer Sandwich,2,2
+,Peach Parfait,2,2
+,Peri Peri Paneer Pizza,2,2
+,Pizza Waffles,2,2
+,Podi Dosa,2,2
+,Podi Idli,2,2
+,Pool Table,2,2
+,Pork Curry,2,2
+,Pork Sausage,2,2
+,Pork Thali,2,2
+,Potato Masala,2,2
+,Potato Twister,2,2
+,Pumpkin Soup,2,2
+,Quinoa Salad,2,2
+,Rawas Fry,2,2
+,Red Velvet Waffle,2,2
+,Ricotta Ravioli,2,2
+,Roasted Chilli,2,2
+,Sabudana Khichdi,2,2
+,Salmon Sushi,2,2
+,Samosa Chaat,2,2
+,Savoury Crepe,2,2
+,Shaadi Ki Biryani,2,2
+,Shakshouka,2,2
+,Sooji Halwa,2,2
+,Souvlaki,2,2
+,Spinach Corn Sandwich,2,2
+,Spinach Curry,2,2
+,Spring Dosa,2,2
+,Sulemani Chai,2,2
+,Supreme Mutton Biryani,2,2
+,Tamarind Chicken,2,2
+,Thai Chicken Salad,2,2
+,Thai Crispy Chicken,2,2
+,Thai Salad,2,2
+,Tomato Shorba,2,2
+,Triple Schezwan,2,2
+,Ulavacharu,2,2
+,Veg Cutlet,2,2
+,Veg Manchow Soup,2,2
+,Veg Paprika,2,2
+,Veg Pattice,2,2
+,Vegetable Dimsums,2,2
+,Vegetable Noodles,2,2
+,Whopper Meal,2,2
+,Green Tea,2,1
+,Jowar Roti,2,1
+,Onion Paratha,2,1
+,Steak Burger,2,1
+,Afghani Momos,1,1
+,Aloo Jeera,1,1
+,Aloo Tikka Roll,1,1
+,Andhra Chicken Curry,1,1
+,Anjal Fry,1,1
+,Apple Cake,1,1
+,Apple Fritters,1,1
+,Avocado Sandwich,1,1
+,Baked Beans,1,1
+,Bamboo Biryani,1,1
+,Banana Caramel,1,1
+,Barfi,1,1
+,Basil Smoothie,1,1
+,Basil Soup,1,1
+,Bbq Platter,1,1
+,Bbq Sandwich,1,1
+,Beef Biryani,1,1
+,Beef Momos,1,1
+,Beetroot Burger,1,1
+,Belgian Dark Chocolate,1,1
+,Belgium Waffles,1,1
+,Benne Khali Dosa,1,1
+,Bhindi Fry,1,1
+,Bibimbap,1,1
+,Blueberry Cheese Cake,1,1
+,Blueberry Waffles,1,1
+,Bonda Soup,1,1
+,Boneless Biryani,1,1
+,Brinjal Fry,1,1
+,Bubble Gum Ice Cream,1,1
+,Burst Pizza,1,1
+,Butter Chicken Biryani,1,1
+,Butter Chicken Burger,1,1
+,Butter Phulkas,1,1
+,Butterfly Chicken,1,1
+,Butterscotch Cake,1,1
+,Cabbage Salad,1,1
+,Cannelloni,1,1
+,Cantonese Noodles,1,1
+,Caramel Cheesecake,1,1
+,Caramel Chocolate,1,1
+,Caramel Eclair,1,1
+,Caramel Milkshake,1,1
+,Carrot Halwa,1,1
+,Charcoal Chicken,1,1
+,Charcoal Shawarma,1,1
+,Cheddar Cheese Balls,1,1
+,Cheese Cutlet,1,1
+,Cheese Fatayer,1,1
+,Cheese Masala Dosa,1,1
+,Cheese Omelette,1,1
+,Cheesy Grilled Sandwich,1,1
+,Chef Special 1,1,1
+,Chef Special 3,1,1
+,Chef Special 5,1,1
+,Chelo Kebab,1,1
+,Chettinad Pizza,1,1
+,Chicken Bruschetta,1,1
+,Chicken Ceaser Salad,1,1
+,Chicken Chips,1,1
+,Chicken Chukka,1,1
+,Chicken Fingers,1,1
+,Chicken Hakka Noodles,1,1
+,Chicken Jumbo Burger,1,1
+,Chicken Khao Suey,1,1
+,Chicken Litti,1,1
+,Chicken Malhooth,1,1
+,Chicken Pepper Fry,1,1
+,Chicken Reshmi Tikka Roll,1,1
+,Chicken Samosa,1,1
+,Chicken Shashlik,1,1
+,Chicken Shwarma Roll,1,1
+,Chicken Tandoori Grill Burger,1,1
+,Chicken Vepudu,1,1
+,Chilli Mushroom,1,1
+,Choco Chip Cookies,1,1
+,Chocolate Banana,1,1
+,Chocolate Chocochip,1,1
+,Chocolate Mudpie,1,1
+,Chocolate Samosa,1,1
+,Coconut Ice Cream,1,1
+,Coke Float,1,1
+,Cookie Monster Shake,1,1
+,Coriander Chicken,1,1
+,Crab Cake,1,1
+,Crab Toast,1,1
+,Crispy Chilli Babycorn,1,1
+,Crispy Lotus Stem,1,1
+,Crispy Noodle,1,1
+,Crispy Pork,1,1
+,Diced Chicken,1,1
+,Dimsum Platter,1,1
+,Diwani Handi,1,1
+,Double Chocolate Cake,1,1
+,Dragon Prawn,1,1
+,Drunken Chicken Wings,1,1
+,Farmhouse Pizza,1,1
+,Farsan,1,1
+,Fattoush Salad,1,1
+,Frappuccino,1,1
+,Fruit Beer,1,1
+,Fruit Ice Cream,1,1
+,Fruit Pancake,1,1
+,Fruit Tart,1,1
+,Garlic Fries,1,1
+,Garlic Maggi,1,1
+,Ghee Roast Dosa,1,1
+,Gobhi Matar,1,1
+,Grilled Burger,1,1
+,Grilled Wings,1,1
+,Hash Brown,1,1
+,Hazelnut Frappe,1,1
+,Hazelnut Latte,1,1
+,Honey Cake,1,1
+,Hot Badam Milk,1,1
+,Hyderabadi Chicken,1,1
+,Ice Cream Pizza,1,1
+,Juicy Lamb Burger,1,1
+,Jumbo Chicken,1,1
+,Kanda Bhajiya,1,1
+,Kappa Biryani,1,1
+,Karara Paneer,1,1
+,Karela Salad,1,1
+,Katsu Curry,1,1
+,Keema Samosa,1,1
+,Kodi Vepudu,1,1
+,Kothu Parotta,1,1
+,Kuluki Sarbat,1,1
+,Kung Pao Vegetables,1,1
+,Ladoo,1,1
+,Legendary Arsalan,1,1
+,Lime Mojito,1,1
+,Lobster Risotto,1,1
+,Lollipop Biryani,1,1
+,Mango Waffles,1,1
+,Masala Tikka,1,1
+,Masala Veg Frankie,1,1
+,Mascarpone Cheese,1,1
+,Mcmuffin,1,1
+,Mcspicy Chicken Burger,1,1
+,Mediterranean Platter,1,1
+,Meetha Paan,1,1
+,Melted Chocolate,1,1
+,Mexican Rice,1,1
+,Mint Mojito,1,1
+,Misal,1,1
+,Momo Burger,1,1
+,Momo Platter,1,1
+,Monster Pizza,1,1
+,Moong Dal Halwa,1,1
+,Murgh Angara,1,1
+,Murgh Khurchan,1,1
+,Mutton Burger,1,1
+,Mutton Handi,1,1
+,Mutton Kalmi,1,1
+,Mutton Kebab,1,1
+,Mutton Masala,1,1
+,Mutton Pulao,1,1
+,Mutton Seekh Roll,1,1
+,Nawabi Pizza,1,1
+,Octopus Takoyaki,1,1
+,Open Masala Dosa,1,1
+,Oreo Pancake,1,1
+,Oysters,1,1
+,Pallipalayam Chicken,1,1
+,Pan Fried Noodles,1,1
+,Pan Shot Ice Cream,1,1
+,Paneer Curry,1,1
+,Paneer Fried Rice,1,1
+,Paneer Hyderabadi,1,1
+,Paneer Lajawab,1,1
+,Paneer Makhanwala,1,1
+,Paneer Pockets,1,1
+,Paneer Sizzler,1,1
+,Pasta Sizzler,1,1
+,Patisserie Nitash,1,1
+,Pav Bhaji Fondue,1,1
+,Peking Duck,1,1
+,Pepper Prawns,1,1
+,Pepperoni,1,1
+,Pink Sauce Pasta,1,1
+,Poha Jalebi,1,1
+,Pomegranate Sorbet,1,1
+,Poricha Kozhi,1,1
+,Pork Bibimbap,1,1
+,Pork Bulgogi,1,1
+,Pork Vindaloo,1,1
+,Potato Momos,1,1
+,Potato Pops,1,1
+,Prawn Dumplings,1,1
+,Puran Poli,1,1
+,Puri Saagu,1,1
+,Raan,1,1
+,Rabri Malpua,1,1
+,Red Wine Sangria,1,1
+,Rendang Curry,1,1
+,Roast Chicken Sub,1,1
+,Rumali Shawarma,1,1
+,Sashimi,1,1
+,Schezwan Fried Rice,1,1
+,Schezwan Vada Pav,1,1
+,Sesame Chicken,1,1
+,Shanghai Chicken,1,1
+,Shephards Pie,1,1
+,Shrimp Soup,1,1
+,Smoked Tomato Soup,1,1
+,Smoothie Chocolate,1,1
+,Soya Buttermilk,1,1
+,Soya Chaap Biryani,1,1
+,Spicy Chicken Bangkok Bowl,1,1
+,Spicy Fries,1,1
+,Spinach Pasta,1,1
+,Squid Ghee Roast,1,1
+,Squid Rings,1,1
+,Strawberry Cake,1,1
+,Strawberry Cheesecake,1,1
+,Stuffed Pomfret,1,1
+,Supreme Chicken Biryani,1,1
+,Sweet Crepe,1,1
+,Sweet Paan,1,1
+,Sweet Potato Cake,1,1
+,Tabbouleh,1,1
+,Taco Joint,1,1
+,Tamda Rassa,1,1
+,Thatte Idli,1,1
+,Thread Chicken,1,1
+,Tiramisu Ice Cream,1,1
+,Tokri Chaat,1,1
+,Tomato Masala,1,1
+,Triple Sundae,1,1
+,Veg Cheese Sandwich,1,1
+,Veg Sizzler,1,1
+,Veg Supreme,1,1
+,Veg Thupka,1,1
+,Veg Whopper,1,1
+,Vegetable Kebab Platter,1,1
+,Walnut Brownie,1,1
+,Watermelon Feta Salad,1,1
+,Watermelon Ice Cream,1,1
+,Wheat Shawarma,1,1
+,Whole Wheat Pita,1,1
+,Wine Sauteed Mushrooms,1,1

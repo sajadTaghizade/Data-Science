@@ -1,4 +1,0 @@
-type,hour,order_count
-PEAK_HOUR,20,4352
-PEAK_HOUR,21,4352
-OFF_PEAK_HOUR,4,334

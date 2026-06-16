@@ -1,0 +1,42 @@
+import os
+import shutil
+import kagglehub
+
+# ۱. دانلود کل دیتاست از کگل هاب
+base_path = kagglehub.dataset_download("kritikseth/fruit-and-vegetable-image-recognition")
+print("Original dataset path:", base_path)
+
+# ۲. لیست ۱۰ کلاس مورد نظر شما طبق تصویر
+target_classes = [
+    'Apple', 'Banana', 'Bell Pepper', 'Carrot', 'Grapes', 
+    'Kiwi', 'Lemon', 'Orange', 'Pear', 'Tomato'
+]
+
+# ۳. پوشه‌های اصلی دیتاست
+splits = ['train', 'test', 'validation']
+
+# ۴. مسیر پوشه جدید برای ذخیره کلاس‌های فیلتر شده
+# (می‌تونی این مسیر رو به هر جایی که دوست داری تغییر بدی)
+output_path = "./filtered_dataset" 
+
+# ۵. عملیات فیلتر و کپی کردن
+for split in splits:
+    split_src_dir = os.path.join(base_path, split)
+    
+    # بررسی اینکه پوشه (مثلاً train) وجود داره یا نه
+    if not os.path.exists(split_src_dir):
+        continue
+        
+    print(f"Processing {split} split...")
+    
+    for folder_name in target_classes:
+        src_folder = os.path.join(split_src_dir, folder_name)
+        dest_folder = os.path.join(output_path, split, folder_name)
+        
+        # اگر پوشه کلاس در دیتاست اصلی وجود داشت، کپی‌اش کن
+        if os.path.exists(src_folder):
+            shutil.copytree(src_folder, dest_folder, dirs_exist_ok=True)
+        else:
+            print(f"Warning: Folder '{folder_name}' not found in {split}!")
+
+print(f"\nDone! Your filtered dataset with 10 classes is ready at: {output_path}")

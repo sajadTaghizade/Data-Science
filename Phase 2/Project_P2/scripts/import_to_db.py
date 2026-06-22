@@ -11,7 +11,10 @@ from typing import Any
 import pandas as pd
 from sqlalchemy import text
 
-from database_connection import DEFAULT_DATABASE_PATH, SOURCE_CSV_PATH, get_engine, set_active_database_path
+try:  # Supports both `python scripts/import_to_db.py` and `from scripts.import_to_db import ...`.
+    from .database_connection import DEFAULT_DATABASE_PATH, SOURCE_CSV_PATH, get_engine, set_active_database_path
+except ImportError:  # pragma: no cover - direct script execution
+    from database_connection import DEFAULT_DATABASE_PATH, SOURCE_CSV_PATH, get_engine, set_active_database_path
 
 
 SCHEMA_SQL = """

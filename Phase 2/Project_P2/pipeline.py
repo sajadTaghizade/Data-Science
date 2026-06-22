@@ -18,7 +18,7 @@ def run(script_name: str) -> None:
 
 if __name__ == "__main__":
     # Import is included so a clean clone can rebuild the database before downstream stages.
-    run("import_data.py")
+    run("import_to_db.py")
     run("load_data.py")
     run("preprocess.py")
     run("feature_engineering.py")

@@ -1,9 +1,10 @@
 """Crawl Stack Overflow C++ questions from the Stack Exchange API.
 
-Based on the team's original scraper: it queries the ``/search/advanced``
-endpoint with a full-text query and ``sort=activity`` (so the collected
-questions match the original dataset's distribution), using ``requests`` with a
-retry strategy and an optional local proxy.
+Based on the team's original scraper (``requests`` + retry strategy + optional
+local proxy, ``/search/advanced`` with ``filter=withbody``), but crawls by
+**tag** (``tagged=c++``) instead of a full-text query. The original ``q='c++'``
+full-text search only matches a few thousand questions — which is why the first
+dataset was small — whereas the ``c++`` tag covers ~800k questions.
 
 The cloud/CI environment blocks outbound access to api.stackexchange.com, so run
 this **locally**. It reproduces the exact column layout of
@@ -22,7 +23,7 @@ every few pages, so an interrupted/quota-stopped run never loses progress.
 Examples
 --------
     pip install requests pandas
-    # Keyless: grab as much as today's quota allows (stops cleanly at the cap).
+    # Keyless: grab as much C++-tagged data as today's quota allows (~30k).
     python crawl_stackoverflow.py --pages 300
     # Run it again another day to accumulate more (dedup is automatic):
     python crawl_stackoverflow.py --pages 300
@@ -102,10 +103,15 @@ def combine(existing_df: pd.DataFrame | None, new_items: list[dict],
     return ensure_schema(combined, reference_columns)
 
 
-def crawl(query: str, pages: int, key: str | None = None, proxy: str | None = None,
-          target: int | None = None, sort: str = "activity",
-          output_path: Path | None = None, save_every: int = 20) -> list[dict]:
-    """Page through ``/search/advanced``; skip already-saved IDs and save incrementally."""
+def crawl(tagged: str | None = "c++", pages: int = 300, key: str | None = None,
+          proxy: str | None = None, target: int | None = None, sort: str = "creation",
+          query: str | None = None, output_path: Path | None = None, save_every: int = 20) -> list[dict]:
+    """Page through ``/search/advanced``; skip already-saved IDs and save incrementally.
+
+    Use ``tagged='c++'`` (default) to access the full ~800k C++ questions. A
+    full-text ``query`` (the original scraper's ``q='c++'``) only matches a few
+    thousand questions, which is why the original dataset was small.
+    """
     session = build_session()
     proxies = {"http": proxy, "https": proxy} if proxy else None
 
@@ -117,8 +123,12 @@ def crawl(query: str, pages: int, key: str | None = None, proxy: str | None = No
     for page in range(1, pages + 1):
         params = {
             "order": "desc", "sort": sort, "site": "stackoverflow",
-            "q": query, "pagesize": 100, "page": page, "filter": WITHBODY_FILTER,
+            "pagesize": 100, "page": page, "filter": WITHBODY_FILTER,
         }
+        if tagged:
+            params["tagged"] = tagged
+        if query:
+            params["q"] = query
         if key:
             params["key"] = key
 
@@ -159,22 +169,23 @@ def crawl(query: str, pages: int, key: str | None = None, proxy: str | None = No
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Crawl Stack Overflow C++ questions (resumable, no key needed).")
-    parser.add_argument("--query", default="c++", help="full-text search query (default: c++)")
+    parser.add_argument("--tagged", default="c++", help="tag to crawl (default: c++ — the full ~800k pool)")
+    parser.add_argument("--query", default=None, help="optional full-text query (the original scraper's q='c++')")
     parser.add_argument("--pages", type=int, default=300, help="max pages to fetch (100 questions each)")
     parser.add_argument("--target", type=int, default=None, help="optional cap on total dataset size")
     parser.add_argument("--key", default=None, help="optional Stack Apps API key (raises the daily quota)")
     parser.add_argument("--proxy", default=None, help="optional proxy URL, e.g. http://127.0.0.1:10808")
-    parser.add_argument("--sort", default="activity", choices=["activity", "creation", "votes"],
-                        help="API sort order (default: activity, matching the original crawl)")
+    parser.add_argument("--sort", default="creation", choices=["activity", "creation", "votes"],
+                        help="API sort order (default: creation — stable for deep pagination)")
     parser.add_argument("--save-every", type=int, default=20, help="save progress every N pages")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="output CSV path")
     args = parser.parse_args()
 
     existing_df, existing_ids = load_existing(args.output)
     reference = reference_columns_from(args.output)
-    new_items = crawl(args.query, pages=args.pages, key=args.key, proxy=args.proxy,
-                      target=args.target, sort=args.sort, output_path=args.output,
-                      save_every=args.save_every)
+    new_items = crawl(tagged=args.tagged, pages=args.pages, key=args.key, proxy=args.proxy,
+                      target=args.target, sort=args.sort, query=args.query,
+                      output_path=args.output, save_every=args.save_every)
 
     if not new_items and existing_df is None:
         logger.error("No items collected; nothing written.")

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import logging
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
@@ -15,6 +16,9 @@ try:  # Supports both `python scripts/import_to_db.py` and `from scripts.import_
     from .database_connection import DEFAULT_DATABASE_PATH, SOURCE_CSV_PATH, get_engine, set_active_database_path
 except ImportError:  # pragma: no cover - direct script execution
     from database_connection import DEFAULT_DATABASE_PATH, SOURCE_CSV_PATH, get_engine, set_active_database_path
+
+
+logger = logging.getLogger(__name__)
 
 
 SCHEMA_SQL = """
@@ -121,9 +125,9 @@ def choose_database_path() -> Path:
         except PermissionError:
             timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
             fallback = fallback.with_name(f"stackoverflow_questions_active_{timestamp}.db")
-        print(
-            f"Note: {DEFAULT_DATABASE_PATH.name} is open in another application; "
-            f"building {fallback.name} for this run."
+        logger.warning(
+            "%s is open in another application; building %s for this run.",
+            DEFAULT_DATABASE_PATH.name, fallback.name,
         )
         return fallback
 
@@ -270,6 +274,7 @@ def build_database() -> tuple[Path, dict[str, int]]:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     database_path, result = build_database()
-    print(f"Created database: {database_path}")
-    print("Imported " + ", ".join(f"{count:,} {table}" for table, count in result.items()) + ".")
+    logger.info("Created database: %s", database_path)
+    logger.info("Imported %s.", ", ".join(f"{count:,} {table}" for table, count in result.items()))

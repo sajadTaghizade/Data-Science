@@ -1,15 +1,19 @@
-"""Perform deterministic text cleaning and preprocessing for question retrieval."""
+"""Advanced, leakage-safe text cleaning and preprocessing for question retrieval.
+
+This module loads the question data directly from SQLite (as required by the
+brief) and produces a cleaned, model-ready DataFrame. The cleaning preserves
+technical C++ tokens (``std::vector``, ``nullptr``, ``c++``) and code markers,
+because they carry strong similarity signal for the recommender.
+"""
 
 from __future__ import annotations
 
-import html
 import json
 import re
-from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
-from bs4 import BeautifulSoup
 
 try:  # Supports both direct script execution and imports from the EDA notebook.
     from .database_connection import PROJECT_ROOT
@@ -23,53 +27,94 @@ PROCESSED_PATH = PROJECT_ROOT / "data" / "processed" / "preprocessed_questions.c
 REPORT_PATH = PROJECT_ROOT / "data" / "reports" / "preprocessing_report.json"
 CORE_TEXT_COLUMNS = ["title", "body_html"]
 
+# Tags shared by (almost) every question carry no discriminative signal.
+GLOBAL_TAGS = {"c++", "cpp", "cplusplus"}
 
-def html_to_text(value: Any) -> str:
-    """Decode HTML and normalize whitespace without removing technical punctuation."""
-    if pd.isna(value):
-        return ""
-    soup = BeautifulSoup(html.unescape(str(value)), "html.parser")
-    for element in soup(["script", "style"]):
-        element.decompose()
-    text = soup.get_text(" ", strip=True)
-    return re.sub(r"\s+", " ", text).strip()
+CODE_BLOCK_RE = re.compile(r"<pre.*?>.*?</pre>|<code.*?>.*?</code>", flags=re.I | re.S)
+HTML_TAG_RE = re.compile(r"<[^>]+>")
+NON_TEXT_RE = re.compile(r"[^a-zA-Z0-9_+#.:-]+")
+SPACE_RE = re.compile(r"\s+")
+
+try:
+    from bs4 import BeautifulSoup
+except ImportError:  # pragma: no cover - bs4 is declared in requirements.txt
+    BeautifulSoup = None
 
 
-def normalise_document(value: Any) -> str:
-    """Create a stable text representation while preserving tokens such as C++ and std::vector."""
-    return html_to_text(value).lower()
+def strip_html_keep_code_markers(html_value: Any) -> tuple[str, int]:
+    """Remove HTML but keep a ``CODE_BLOCK`` marker and the count of code blocks."""
+    html_text = "" if pd.isna(html_value) else str(html_value)
+    code_block_count = len(CODE_BLOCK_RE.findall(html_text))
+    if BeautifulSoup is not None:
+        soup = BeautifulSoup(html_text, "html.parser")
+        for tag in soup.find_all(["pre", "code"]):
+            tag.replace_with(" CODE_BLOCK " + tag.get_text(" ") + " ")
+        text = soup.get_text(" ")
+    else:
+        text = CODE_BLOCK_RE.sub(" CODE_BLOCK ", html_text)
+        text = HTML_TAG_RE.sub(" ", text)
+    return text, code_block_count
+
+
+def normalize_technical_text(value: Any) -> str:
+    """Lowercase and normalize while preserving technical tokens such as ``std::vector``."""
+    text = "" if pd.isna(value) else str(value).lower()
+    text = text.replace("c ++", "c++").replace("cplusplus", "c++")
+    text = text.replace("std ::", "std::")
+    text = NON_TEXT_RE.sub(" ", text)
+    return SPACE_RE.sub(" ", text).strip()
+
+
+def normalize_tags(value: Any) -> list[str]:
+    """Return a sorted, de-duplicated, lower-cased tag list from a ``|``/``,`` string or list."""
+    if isinstance(value, list):
+        tags = value
+    elif pd.isna(value):
+        return []
+    else:
+        tags = [tag.strip().lower() for tag in str(value).replace(",", "|").split("|")]
+    return sorted({tag for tag in tags if tag})
+
+
+def secondary_tags(tags: list[str]) -> set[str]:
+    """Drop the universal C++ tags so only discriminative tags remain."""
+    return {tag for tag in tags if tag not in GLOBAL_TAGS}
 
 
 def preprocess_dataframe(raw_df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, Any]]:
     """Clean model inputs and record every data-quality decision."""
     df = raw_df.copy()
     report: dict[str, Any] = {"input_rows": int(len(df))}
-    report["duplicate_question_ids_removed"] = int(df.duplicated(subset=["question_id"]).sum())
-    df = df.drop_duplicates(subset=["question_id"], keep="first")
 
-    missing_core = df[CORE_TEXT_COLUMNS].isna().any(axis=1)
-    blank_core = df[CORE_TEXT_COLUMNS].fillna("").apply(
-        lambda column: column.astype(str).str.strip().eq("")
-    ).any(axis=1)
-    invalid_text = missing_core | blank_core
+    report["duplicate_question_ids_removed"] = int(df.duplicated(subset=["question_id"]).sum())
+    df = df.drop_duplicates(subset=["question_id"], keep="first").copy()
+
+    df["title"] = df["title"].fillna("").astype(str)
+    df["body_html"] = df["body_html"].fillna("").astype(str)
+    invalid_text = df["title"].str.strip().eq("") | df["body_html"].str.strip().eq("")
     report["missing_or_blank_core_text_removed"] = int(invalid_text.sum())
     df = df.loc[~invalid_text].copy()
 
-    df["title_text"] = df["title"].map(normalise_document)
-    df["body_text"] = df["body_html"].map(normalise_document)
-    df["document_text"] = (df["title_text"] + " " + df["body_text"]).str.strip()
-    empty_documents = df["document_text"].eq("")
+    body_result = df["body_html"].apply(strip_html_keep_code_markers)
+    df["body_text"] = body_result.apply(lambda result: result[0])
+    df["code_block_count"] = body_result.apply(lambda result: result[1])
+
+    df["title_clean"] = df["title"].apply(normalize_technical_text)
+    df["body_clean"] = df["body_text"].apply(normalize_technical_text)
+    # Title is repeated so it weighs more heavily than the (much longer) body.
+    df["document_clean"] = (df["title_clean"] + " " + df["title_clean"] + " " + df["body_clean"]).str.strip()
+    empty_documents = df["document_clean"].eq("")
     report["empty_documents_removed"] = int(empty_documents.sum())
     df = df.loc[~empty_documents].copy()
 
-    df["tags"] = df["tags"].fillna("").map(
-        lambda value: "|".join(sorted({tag.strip() for tag in str(value).split("|") if tag.strip()}))
-    )
-    df["tag_count"] = df["tags"].map(lambda value: len(value.split("|")) if value else 0)
+    df["tag_list"] = df["tags"].apply(normalize_tags)
+    df["tags"] = df["tag_list"].apply(lambda tags: "|".join(tags))
+    df["tag_count"] = df["tag_list"].apply(len)
     report["missing_tag_lists"] = int((df["tag_count"] == 0).sum())
 
     for column in ["creation_at", "last_activity_at", "last_edit_at", "closed_at"]:
-        df[column] = pd.to_datetime(df[column], utc=True, errors="coerce")
+        if column in df.columns:
+            df[column] = pd.to_datetime(df[column], utc=True, errors="coerce")
 
     numeric_columns = ["view_count", "answer_count", "score", "tag_count"]
     for column in numeric_columns:
@@ -79,30 +124,29 @@ def preprocess_dataframe(raw_df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, 
     }
     df[numeric_columns] = df[numeric_columns].fillna(0)
 
-    correlation_matrix = df[numeric_columns].corr().round(4)
-    high_correlation_pairs = []
-    for index, first_feature in enumerate(numeric_columns):
-        for second_feature in numeric_columns[index + 1:]:
-            correlation = float(correlation_matrix.loc[first_feature, second_feature])
-            if abs(correlation) >= 0.90:
-                high_correlation_pairs.append({
-                    "feature_1": first_feature,
-                    "feature_2": second_feature,
-                    "correlation": correlation,
-                })
-    report["numeric_correlation_matrix"] = correlation_matrix.to_dict()
-    report["high_correlation_pairs_abs_ge_0_90"] = high_correlation_pairs
-    report["outlier_strategy"] = (
-        "Retain legitimate high-engagement questions, then apply log/signed-log transformations "
-        "and standardization in feature_engineering.py instead of deleting informative records."
-    )
+    df["title_word_count"] = df["title_clean"].str.split().apply(len)
+    df["body_word_count"] = df["body_clean"].str.split().apply(len)
+    df["document_word_count"] = df["document_clean"].str.split().apply(len)
+    df["log_view_count"] = np.log1p(df["view_count"].clip(lower=0))
+    df["signed_log_score"] = np.sign(df["score"]) * np.log1p(df["score"].abs())
+    df["creation_year"] = df["creation_at"].dt.year
+    df["creation_month"] = df["creation_at"].dt.month
 
-    report["output_rows"] = int(len(df))
-    report["excluded_from_similarity_model"] = [
-        "question_url", "accepted_answer_id", "closed_reason", "raw owner fields",
-        "sparse migration metadata", "raw engagement counts",
+    correlation_matrix = df[numeric_columns].corr().round(4)
+    report["numeric_correlation_matrix"] = correlation_matrix.to_dict()
+    report["high_correlation_pairs_abs_ge_0_90"] = [
+        {"feature_1": first, "feature_2": second,
+         "correlation": float(correlation_matrix.loc[first, second])}
+        for index, first in enumerate(numeric_columns)
+        for second in numeric_columns[index + 1:]
+        if abs(correlation_matrix.loc[first, second]) >= 0.90
     ]
-    return df, report
+    report["outlier_strategy"] = (
+        "Retain legitimate high-engagement questions; apply log/signed-log transforms instead "
+        "of deleting informative records. Engagement is not the semantic-similarity target."
+    )
+    report["output_rows"] = int(len(df))
+    return df.reset_index(drop=True), report
 
 
 def main() -> None:

@@ -75,10 +75,14 @@ and cloud environments block outbound access to `api.stackexchange.com`:
 ```bash
 pip install requests pandas
 cd "../../Phase 1"
-python crawl_stackoverflow.py --target 50000 --key YOUR_APP_KEY
+python crawl_stackoverflow.py --pages 500 --key YOUR_APP_KEY
+# behind a local proxy/VPN (as in the team's original scraper):
+python crawl_stackoverflow.py --pages 500 --proxy http://127.0.0.1:10808
 ```
 
-It regenerates `Phase 1/stackoverflow_questions.csv` with the exact same column
+The crawler queries the `/search/advanced` endpoint (`q="c++"`, `sort=activity`,
+`filter=withbody`) — the same configuration as the original scrape — and
+regenerates `Phase 1/stackoverflow_questions.csv` with the exact same column
 layout, so nothing downstream needs to change — just re-run `python pipeline.py`.
 A free Stack Apps key raises the daily quota from ~300 to 10,000 requests
 (100 questions per request). The pipeline is size-agnostic; metric computation

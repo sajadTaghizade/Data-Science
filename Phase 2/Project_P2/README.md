@@ -29,6 +29,7 @@ The pipeline treats the recommender as a real retrieval problem rather than just
 - **Hybrid weighted ensemble** whose weights are selected by grid search **on validation only**.
 - **Weak relevance labels** from secondary-tag overlap (the universal `c++` tag is removed so it cannot create artificial relevance). Tags are used as evaluation labels and optional metadata — **not** as scoring features — to avoid leakage.
 - **The test set is evaluated exactly once** for the final report; the model is then refit on all data for deployment.
+- **Baseline comparison**: the hybrid model is benchmarked against random-order and popularity baselines on the same test set to prove it adds real value (it beats both by a wide margin on every metric).
 
 ## Project structure
 
@@ -48,6 +49,7 @@ Project_P2/
 │   ├── preprocess.py                  # Technical text cleaning and preprocessing
 │   └── feature_engineering.py         # Split, TF-IDF models, hybrid tuning, metrics, artefact
 ├── pipeline.py                         # Main pipeline entry point
+├── tests/                              # pytest unit tests (metrics, cleaning, split)
 ├── section1_database_report.ipynb      # Section 1 report and SQL outputs
 ├── section2_eda_report.ipynb           # Section 2 EDA + modeling report
 ├── requirements.txt
@@ -103,6 +105,20 @@ Owner profile fields and very sparse migration metadata are excluded from the mo
 | `data/reports/section2_single_model_validation_metrics.csv` | Per-representation validation metrics. |
 | `data/reports/section2_hybrid_weight_search_validation.csv` | Hybrid weight grid-search results on validation. |
 | `data/reports/section2_best_hybrid_test_metrics.csv` | Final hybrid metrics on the held-out test set. |
+| `data/reports/section2_baseline_vs_model_test_metrics.csv` | Random and popularity baselines vs. the hybrid model on the test set. |
+
+## Tests
+
+Unit tests cover the retrieval metrics, the technical text cleaning, the tag
+handling, and the temporal split (ordering and no leakage). Run them from this
+directory:
+
+```bash
+python -m pytest
+```
+
+These tests are intended to run in CI (Section 4) so that every push verifies
+correctness, not just that the pipeline executes.
 
 ## Reports and evidence
 

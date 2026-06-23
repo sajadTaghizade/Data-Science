@@ -9,6 +9,7 @@ because they carry strong similarity signal for the recommender.
 from __future__ import annotations
 
 import json
+import logging
 import re
 from typing import Any
 
@@ -22,6 +23,8 @@ except ImportError:  # pragma: no cover - direct script execution
     from database_connection import PROJECT_ROOT
     from load_data import load_question_dataframe
 
+
+logger = logging.getLogger(__name__)
 
 PROCESSED_PATH = PROJECT_ROOT / "data" / "processed" / "preprocessed_questions.csv"
 REPORT_PATH = PROJECT_ROOT / "data" / "reports" / "preprocessing_report.json"
@@ -156,8 +159,9 @@ def main() -> None:
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     processed_df.to_csv(PROCESSED_PATH, index=False)
     REPORT_PATH.write_text(json.dumps(report, indent=2), encoding="utf-8")
-    print(f"Preprocessed {len(processed_df):,} questions into {PROCESSED_PATH}")
+    logger.info("Preprocessed %d questions into %s", len(processed_df), PROCESSED_PATH)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     main()

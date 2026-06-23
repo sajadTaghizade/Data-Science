@@ -10,6 +10,7 @@ deployment. All vectorizers are fit on the training corpus only.
 from __future__ import annotations
 
 import json
+import logging
 import re
 from collections import Counter
 from dataclasses import dataclass
@@ -30,11 +31,15 @@ except ImportError:  # pragma: no cover - direct script execution
     from preprocess import PROCESSED_PATH, GLOBAL_TAGS, preprocess_dataframe, secondary_tags
 
 
+logger = logging.getLogger(__name__)
+
+
 FEATURES_PATH = PROJECT_ROOT / "data" / "processed" / "question_features.csv"
 ARTIFACT_PATH = PROJECT_ROOT / "data" / "models" / "best_hybrid_recommender.joblib"
 SINGLE_METRICS_PATH = PROJECT_ROOT / "data" / "reports" / "section2_single_model_validation_metrics.csv"
 HYBRID_SEARCH_PATH = PROJECT_ROOT / "data" / "reports" / "section2_hybrid_weight_search_validation.csv"
 TEST_METRICS_PATH = PROJECT_ROOT / "data" / "reports" / "section2_best_hybrid_test_metrics.csv"
+BASELINE_METRICS_PATH = PROJECT_ROOT / "data" / "reports" / "section2_baseline_vs_model_test_metrics.csv"
 METADATA_PATH = PROJECT_ROOT / "data" / "reports" / "feature_engineering_report.json"
 
 RANDOM_STATE = 42
@@ -214,6 +219,19 @@ def weight_grid():
     return grid
 
 
+def rank_random(n_queries: int, n_candidates: int, top_k: int, seed: int = RANDOM_STATE) -> list[list[int]]:
+    """Random-order baseline: a shuffled candidate list per query."""
+    rng = np.random.default_rng(seed)
+    return [rng.permutation(n_candidates)[:top_k].tolist() for _ in range(n_queries)]
+
+
+def rank_popularity(corpus_df: pd.DataFrame, n_queries: int, top_k: int) -> list[list[int]]:
+    """Popularity baseline: the same most-viewed/highest-scored candidates for every query."""
+    order = np.lexsort((corpus_df["view_count"].to_numpy(), corpus_df["score"].to_numpy()))[::-1]
+    ranking = order[:top_k].tolist()
+    return [ranking for _ in range(n_queries)]
+
+
 # --------------------------------------------------------------------------- #
 # Optional metadata: multi-hot tag encoding (NOT used for scoring)
 # --------------------------------------------------------------------------- #
@@ -272,6 +290,15 @@ def main() -> None:
     # Final test evaluation (once); candidate corpus = train only.
     test_metrics = evaluate_rankings(rank_hybrid(models, test_df, best_weights), test_df["tag_list"], train_secondary)
 
+    # Baselines for context: prove the model beats trivial rankings on the same test set.
+    n_test, n_train = len(test_df), len(train_df)
+    baseline_metrics = {
+        "random": evaluate_rankings(rank_random(n_test, n_train, 50), test_df["tag_list"], train_secondary),
+        "popularity": evaluate_rankings(rank_popularity(train_df, n_test, 50), test_df["tag_list"], train_secondary),
+        "hybrid_model": test_metrics,
+    }
+    baseline_df = pd.DataFrame(baseline_metrics).T
+
     # Refit the chosen representation on ALL data for deployment.
     final_models = fit_models(questions)
 
@@ -303,6 +330,7 @@ def main() -> None:
     single_df.to_csv(SINGLE_METRICS_PATH)
     hybrid_df.to_csv(HYBRID_SEARCH_PATH, index=False)
     pd.DataFrame([test_metrics]).to_csv(TEST_METRICS_PATH, index=False)
+    baseline_df.to_csv(BASELINE_METRICS_PATH)
 
     metadata = {
         "task": "semantic_similar_question_recommendation",
@@ -311,6 +339,10 @@ def main() -> None:
         "models": [spec["name"] for spec in MODEL_SPECS],
         "best_validation_weights": best_weights,
         "test_metrics": {k: (float(v) if pd.notna(v) else None) for k, v in test_metrics.items()},
+        "baseline_test_metrics": {
+            name: {k: (float(v) if pd.notna(v) else None) for k, v in metrics.items()}
+            for name, metrics in baseline_metrics.items()
+        },
         "tag_multihot_columns": list(tag_multihot.columns),
         "encoded_tags_metadata_only": encoded_tags,
         "model_text_input": "hybrid TF-IDF (title word, document word, char n-gram); cosine similarity.",
@@ -326,10 +358,16 @@ def main() -> None:
     }
     METADATA_PATH.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
 
-    print(f"Engineered features for {len(questions):,} questions.")
-    print(f"Best validation weights: {best_weights}")
-    print("Test Hit@10={Hit@10:.3f}  MRR@10={MRR@10:.3f}  nDCG@10={nDCG@10:.3f}".format(**test_metrics))
+    logger.info("Engineered features for %d questions.", len(questions))
+    logger.info("Best validation weights: %s", best_weights)
+    logger.info("Test    Hit@10=%.3f  MRR@10=%.3f  nDCG@10=%.3f",
+                test_metrics["Hit@10"], test_metrics["MRR@10"], test_metrics["nDCG@10"])
+    logger.info("Random  Hit@10=%.3f  nDCG@10=%.3f",
+                baseline_metrics["random"]["Hit@10"], baseline_metrics["random"]["nDCG@10"])
+    logger.info("Popular Hit@10=%.3f  nDCG@10=%.3f",
+                baseline_metrics["popularity"]["Hit@10"], baseline_metrics["popularity"]["nDCG@10"])
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     main()

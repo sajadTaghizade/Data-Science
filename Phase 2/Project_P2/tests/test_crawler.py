@@ -36,3 +36,19 @@ def test_ensure_schema_dedupes_and_reindexes():
     assert list(result.columns) == reference          # exact canonical schema
     assert len(result) == 2                            # duplicate question_id 1 removed
     assert result["closed_date"].isna().all()          # absent field filled with NaN
+
+
+def test_combine_appends_and_dedupes_against_existing():
+    existing = pd.DataFrame({"question_id": [1, 2], "title": ["old1", "old2"]})
+    new_items = [
+        {"question_id": 2, "title": "dup-should-not-duplicate"},
+        {"question_id": 3, "title": "brand new"},
+    ]
+    result = crawler.combine(existing, new_items, reference_columns=["question_id", "title"])
+    assert sorted(result["question_id"]) == [1, 2, 3]   # only the genuinely new id is added
+    assert len(result) == 3
+
+
+def test_combine_handles_empty_existing():
+    result = crawler.combine(None, [{"question_id": 5, "title": "x"}], reference_columns=["question_id", "title"])
+    assert list(result["question_id"]) == [5]

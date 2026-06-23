@@ -66,6 +66,25 @@ python -m pip install -r requirements.txt
 
 The pipeline reads the source data from `../../Phase 1/stackoverflow_questions.csv`. Do not move that file unless `SOURCE_CSV_PATH` in `scripts/database_connection.py` is updated too.
 
+## Scaling the dataset (optional)
+
+The dataset was crawled from the Stack Exchange API. To grow it (e.g. from 2.5k
+to 20k–100k questions for a stronger model), run the crawler **locally** — CI
+and cloud environments block outbound access to `api.stackexchange.com`:
+
+```bash
+pip install requests pandas
+cd "../../Phase 1"
+python crawl_stackoverflow.py --target 50000 --key YOUR_APP_KEY
+```
+
+It regenerates `Phase 1/stackoverflow_questions.csv` with the exact same column
+layout, so nothing downstream needs to change — just re-run `python pipeline.py`.
+A free Stack Apps key raises the daily quota from ~300 to 10,000 requests
+(100 questions per request). The pipeline is size-agnostic; metric computation
+caps the number of evaluation queries (`MAX_EVAL_QUERIES`) so it stays fast even
+on large corpora, while the candidate corpus itself is never sub-sampled.
+
 ## Run the full pipeline
 
 ```bash

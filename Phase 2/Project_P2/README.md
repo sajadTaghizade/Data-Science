@@ -83,10 +83,13 @@ python crawl_stackoverflow.py --pages 300
 python crawl_stackoverflow.py --pages 300 --proxy http://127.0.0.1:10808
 ```
 
-The crawler queries the `/search/advanced` endpoint (`q="c++"`, `sort=activity`,
-`filter=withbody`) — the same configuration as the original scrape — and
-**appends** to `Phase 1/stackoverflow_questions.csv` with the exact same column
-layout, so nothing downstream needs to change — just re-run `python pipeline.py`.
+The crawler queries the `/search/advanced` endpoint by **tag** (`tagged="c++"`,
+`sort=creation`, `filter=withbody`) and **appends** to
+`Phase 1/stackoverflow_questions.csv` with the exact same column layout, so
+nothing downstream needs to change — just re-run `python pipeline.py`. (The
+original scraper used a full-text `q="c++"` search, which only matches a few
+thousand questions; the `c++` tag covers ~800k, so crawling by tag is what
+actually scales the dataset.)
 
 It works **without an API key**: the keyless quota is ~300 requests/day
 (100 questions each, so ~30k/day). Because the crawler is resumable — it skips

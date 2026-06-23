@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from scripts.feature_engineering import temporal_split, weight_grid
+from scripts.feature_engineering import sample_queries, temporal_split, weight_grid
 from scripts.preprocess import (
     normalize_tags,
     normalize_technical_text,
@@ -60,3 +60,14 @@ def test_temporal_split_is_ordered_and_disjoint():
 def test_weight_grid_entries_sum_to_one():
     for weights in weight_grid():
         assert abs(sum(weights.values()) - 1.0) < 1e-9
+
+
+def test_sample_queries_caps_large_inputs_but_keeps_small_ones():
+    small = pd.DataFrame({
+        "question_id": range(10),
+        "creation_at": pd.date_range("2010-01-01", periods=10, freq="D", tz="UTC"),
+    })
+    assert len(sample_queries(small, max_n=100)) == 10  # unchanged below the cap
+    capped = sample_queries(small, max_n=4)
+    assert len(capped) == 4
+    assert capped["creation_at"].is_monotonic_increasing  # remains time-ordered

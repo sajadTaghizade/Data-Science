@@ -45,6 +45,11 @@ METADATA_PATH = PROJECT_ROOT / "data" / "reports" / "feature_engineering_report.
 RANDOM_STATE = 42
 K_VALUES = (5, 10, 20)
 TOKEN_PATTERN = r"(?u)\b[\w+#.:-]{2,}\b"
+# Cap the number of query rows used for metric computation so the validation/test
+# evaluation stays fast even when the corpus is scaled to tens of thousands of
+# rows. The candidate corpus itself is never sub-sampled. With the current 2.5k
+# dataset the splits are far below this cap, so behaviour is unchanged.
+MAX_EVAL_QUERIES = 3000
 # Tags that appear on at least this many questions become optional multi-hot
 # metadata columns (kept for traceability, NOT used for similarity scoring).
 TAG_MIN_QUESTIONS = 30
@@ -196,6 +201,13 @@ def rank_hybrid(models: list[VectorModel], query_df: pd.DataFrame, weights: dict
     return _rank_from_scores(total, top_k)
 
 
+def sample_queries(df: pd.DataFrame, max_n: int = MAX_EVAL_QUERIES, seed: int = RANDOM_STATE) -> pd.DataFrame:
+    """Deterministically cap the number of evaluation queries for tractable metrics at scale."""
+    if len(df) <= max_n:
+        return df
+    return df.sample(n=max_n, random_state=seed).sort_values("creation_at").reset_index(drop=True)
+
+
 def temporal_split(df: pd.DataFrame, train_frac=0.70, val_frac=0.15):
     df_sorted = df.sort_values("creation_at").reset_index(drop=True)
     n = len(df_sorted)
@@ -266,6 +278,9 @@ def main() -> None:
     questions = load_preprocessed()
 
     train_df, val_df, test_df = temporal_split(questions)
+    # The candidate corpus stays the full training set; only the query rows are capped.
+    val_df = sample_queries(val_df)
+    test_df = sample_queries(test_df)
     train_secondary = [secondary_tags(tags) for tags in train_df["tag_list"]]
     models = fit_models(train_df)
 

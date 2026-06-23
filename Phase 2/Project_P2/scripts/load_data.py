@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+
 import pandas as pd
 from sqlalchemy import text
 
@@ -10,6 +12,8 @@ try:  # Supports both `python scripts/load_data.py` and `from scripts.load_data 
 except ImportError:  # pragma: no cover - direct script execution
     from database_connection import PROJECT_ROOT, get_engine
 
+
+logger = logging.getLogger(__name__)
 
 INTERIM_PATH = PROJECT_ROOT / "data" / "interim" / "questions_from_database.csv"
 
@@ -54,8 +58,9 @@ def main() -> None:
     df = load_question_dataframe()
     INTERIM_PATH.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(INTERIM_PATH, index=False)
-    print(f"Loaded {len(df):,} questions from SQLite into {INTERIM_PATH}")
+    logger.info("Loaded %d questions from SQLite into %s", len(df), INTERIM_PATH)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
     main()

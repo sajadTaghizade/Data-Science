@@ -66,6 +66,36 @@ python -m pip install -r requirements.txt
 
 The pipeline reads the source data from `../../Phase 1/stackoverflow_questions.csv`. Do not move that file unless `SOURCE_CSV_PATH` in `scripts/database_connection.py` is updated too.
 
+## Scaling the dataset (optional)
+
+The dataset was crawled from the Stack Exchange API. To grow it (e.g. from 2.5k
+to 20k–100k questions for a stronger model), run the crawler **locally** — CI
+and cloud environments block outbound access to `api.stackexchange.com`:
+
+```bash
+pip install requests pandas
+cd "../../Phase 1"
+# No API key needed — one run collects up to ~30k questions (the keyless daily quota):
+python crawl_stackoverflow.py --pages 300
+# Run it again another day to accumulate more; duplicates are skipped automatically:
+python crawl_stackoverflow.py --pages 300
+# Behind a local proxy/VPN, as in the team's original scraper:
+python crawl_stackoverflow.py --pages 300 --proxy http://127.0.0.1:10808
+```
+
+The crawler queries the `/search/advanced` endpoint (`q="c++"`, `sort=activity`,
+`filter=withbody`) — the same configuration as the original scrape — and
+**appends** to `Phase 1/stackoverflow_questions.csv` with the exact same column
+layout, so nothing downstream needs to change — just re-run `python pipeline.py`.
+
+It works **without an API key**: the keyless quota is ~300 requests/day
+(100 questions each, so ~30k/day). Because the crawler is resumable — it skips
+question IDs already saved and saves progress every few pages — you can run it
+across multiple days to grow the dataset further, or add `--key YOUR_APP_KEY`
+(free, raises the quota to 10,000 requests/day) to pull much more at once. The pipeline is size-agnostic; metric computation
+caps the number of evaluation queries (`MAX_EVAL_QUERIES`) so it stays fast even
+on large corpora, while the candidate corpus itself is never sub-sampled.
+
 ## Run the full pipeline
 
 ```bash

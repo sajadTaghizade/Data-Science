@@ -5,7 +5,6 @@ from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 
-
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 DEFAULT_DATABASE_PATH = DATA_DIR / "stackoverflow_questions.db"

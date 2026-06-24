@@ -19,16 +19,19 @@ import joblib
 import numpy as np
 import pandas as pd
 from scipy import sparse
+from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import Normalizer
 
 try:  # Supports both direct script execution and imports from the EDA notebook.
     from .database_connection import PROJECT_ROOT
     from .load_data import load_question_dataframe
-    from .preprocess import PROCESSED_PATH, GLOBAL_TAGS, preprocess_dataframe, secondary_tags
+    from .preprocess import GLOBAL_TAGS, PROCESSED_PATH, preprocess_dataframe, secondary_tags
 except ImportError:  # pragma: no cover - direct script execution
     from database_connection import PROJECT_ROOT
     from load_data import load_question_dataframe
-    from preprocess import PROCESSED_PATH, GLOBAL_TAGS, preprocess_dataframe, secondary_tags
+    from preprocess import GLOBAL_TAGS, PROCESSED_PATH, preprocess_dataframe, secondary_tags
 
 
 logger = logging.getLogger(__name__)
@@ -110,7 +113,7 @@ def relevant_indices_for_query(query_tags: list[str], candidate_tags: list[set[s
 
 def evaluate_rankings(rankings, query_tag_lists, candidate_tag_sets, k_values=K_VALUES) -> dict:
     relevant_sets = [relevant_indices_for_query(tags, candidate_tag_sets) for tags in query_tag_lists]
-    valid = [(ranked, relevant) for ranked, relevant in zip(rankings, relevant_sets) if relevant]
+    valid = [(ranked, relevant) for ranked, relevant in zip(rankings, relevant_sets, strict=True) if relevant]
     results = {
         "evaluated_queries": len(valid),
         "coverage": len(valid) / len(query_tag_lists) if len(query_tag_lists) else 0.0,
@@ -146,6 +149,12 @@ MODEL_SPECS = [
      "analyzer": "char_wb", "ngram_range": (3, 5), "min_df": 2, "max_df": 0.95,
      "max_features": 50000},
 ]
+# LSA (latent semantic analysis): TruncatedSVD over a document TF-IDF gives a
+# dense, semantically-aware representation that captures synonymy/co-occurrence
+# beyond exact lexical overlap — a lightweight "embedding" with no extra deps.
+LSA_NAME = "lsa_document"
+LSA_FIELD = "document_clean"
+LSA_COMPONENTS = 200
 
 
 def fit_models(corpus_df: pd.DataFrame) -> list[VectorModel]:
@@ -156,6 +165,17 @@ def fit_models(corpus_df: pd.DataFrame) -> list[VectorModel]:
         vectorizer = TfidfVectorizer(lowercase=False, norm="l2", sublinear_tf=True, **spec)
         matrix = vectorizer.fit_transform(corpus_df[field].fillna(""))
         models.append(VectorModel(name=name, vectorizer=vectorizer, train_matrix=matrix, field=field))
+
+    # Dense LSA representation; Normalizer makes the dot product a cosine similarity.
+    n_components = min(LSA_COMPONENTS, max(2, len(corpus_df) - 1))
+    lsa = make_pipeline(
+        TfidfVectorizer(lowercase=False, sublinear_tf=True, ngram_range=(1, 2),
+                        min_df=2, max_df=0.90, max_features=60000, token_pattern=TOKEN_PATTERN),
+        TruncatedSVD(n_components=n_components, random_state=RANDOM_STATE),
+        Normalizer(copy=False),
+    )
+    lsa_matrix = lsa.fit_transform(corpus_df[LSA_FIELD].fillna(""))
+    models.append(VectorModel(name=LSA_NAME, vectorizer=lsa, train_matrix=lsa_matrix, field=LSA_FIELD))
     return models
 
 
@@ -170,10 +190,20 @@ def models_from_dicts(model_dicts: list[dict]) -> list[VectorModel]:
     return [VectorModel(**d) for d in model_dicts]
 
 
-def _rank_from_scores(scores: sparse.csr_matrix, top_k: int) -> list[list[int]]:
+def score_matrix(model: VectorModel, query_df: pd.DataFrame) -> np.ndarray:
+    """Dense (n_queries x n_candidates) cosine-similarity matrix for one model.
+
+    Works for both the sparse TF-IDF models and the dense LSA model; all
+    representations are L2-normalized, so the dot product is a cosine similarity.
+    """
+    query_vectors = model.vectorizer.transform(query_df[model.field].fillna(""))
+    scores = query_vectors @ model.train_matrix.T
+    return scores.toarray() if sparse.issparse(scores) else np.asarray(scores)
+
+
+def _rank_from_scores(scores: np.ndarray, top_k: int) -> list[list[int]]:
     rankings = []
-    for i in range(scores.shape[0]):
-        row = scores.getrow(i).toarray().ravel()
+    for row in scores:
         if top_k >= len(row):
             order = np.argsort(-row)
         else:
@@ -184,8 +214,7 @@ def _rank_from_scores(scores: sparse.csr_matrix, top_k: int) -> list[list[int]]:
 
 
 def rank_single(model: VectorModel, query_df: pd.DataFrame, top_k: int = 50) -> list[list[int]]:
-    query_matrix = model.vectorizer.transform(query_df[model.field].fillna(""))
-    return _rank_from_scores(query_matrix @ model.train_matrix.T, top_k)
+    return _rank_from_scores(score_matrix(model, query_df), top_k)
 
 
 def rank_hybrid(models: list[VectorModel], query_df: pd.DataFrame, weights: dict[str, float], top_k: int = 50):
@@ -194,8 +223,8 @@ def rank_hybrid(models: list[VectorModel], query_df: pd.DataFrame, weights: dict
         weight = weights.get(model.name, 0.0)
         if weight == 0:
             continue
-        scores = (model.vectorizer.transform(query_df[model.field].fillna("")) @ model.train_matrix.T).multiply(weight)
-        total = scores if total is None else total + scores
+        weighted = weight * score_matrix(model, query_df)
+        total = weighted if total is None else total + weighted
     if total is None:
         raise ValueError("All model weights are zero.")
     return _rank_from_scores(total, top_k)
@@ -217,17 +246,22 @@ def temporal_split(df: pd.DataFrame, train_frac=0.70, val_frac=0.15):
             df_sorted.iloc[val_end:].reset_index(drop=True))
 
 
+WEIGHT_KEYS = ("title_word_tfidf", "document_word_tfidf", "char_wb_tfidf", LSA_NAME)
+
+
 def weight_grid():
     grid = []
-    for title_w in (0.2, 0.3, 0.4):
-        for doc_w in (0.4, 0.5, 0.6):
-            for char_w in (0.1, 0.2, 0.3):
-                total = title_w + doc_w + char_w
-                grid.append({
-                    "title_word_tfidf": title_w / total,
-                    "document_word_tfidf": doc_w / total,
-                    "char_wb_tfidf": char_w / total,
-                })
+    for title_w in (0.2, 0.3):
+        for doc_w in (0.3, 0.4, 0.5):
+            for char_w in (0.1, 0.2):
+                for lsa_w in (0.1, 0.2, 0.3):
+                    total = title_w + doc_w + char_w + lsa_w
+                    grid.append({
+                        "title_word_tfidf": title_w / total,
+                        "document_word_tfidf": doc_w / total,
+                        "char_wb_tfidf": char_w / total,
+                        LSA_NAME: lsa_w / total,
+                    })
     return grid
 
 
@@ -299,8 +333,7 @@ def main() -> None:
         metrics.update(weights)
         hybrid_rows.append(metrics)
     hybrid_df = pd.DataFrame(hybrid_rows).sort_values(["nDCG@10", "MAP@10", "MRR@10"], ascending=False)
-    best_weights = {k: float(hybrid_df.iloc[0][k]) for k in
-                    ("title_word_tfidf", "document_word_tfidf", "char_wb_tfidf")}
+    best_weights = {k: float(hybrid_df.iloc[0][k]) for k in WEIGHT_KEYS}
 
     # Final test evaluation (once); candidate corpus = train only.
     test_metrics = evaluate_rankings(rank_hybrid(models, test_df, best_weights), test_df["tag_list"], train_secondary)
@@ -351,7 +384,7 @@ def main() -> None:
         "task": "semantic_similar_question_recommendation",
         "split": {"type": "temporal", "train_rows": len(train_df),
                   "validation_rows": len(val_df), "test_rows": len(test_df)},
-        "models": [spec["name"] for spec in MODEL_SPECS],
+        "models": [spec["name"] for spec in MODEL_SPECS] + [LSA_NAME],
         "best_validation_weights": best_weights,
         "test_metrics": {k: (float(v) if pd.notna(v) else None) for k, v in test_metrics.items()},
         "baseline_test_metrics": {
@@ -360,7 +393,7 @@ def main() -> None:
         },
         "tag_multihot_columns": list(tag_multihot.columns),
         "encoded_tags_metadata_only": encoded_tags,
-        "model_text_input": "hybrid TF-IDF (title word, document word, char n-gram); cosine similarity.",
+        "model_text_input": "hybrid of TF-IDF (title word, document word, char n-gram) + LSA; cosine similarity.",
         "audit_only_columns": ["view_count", "answer_count", "score", "log_view_count", "signed_log_score"],
         "anti_overfit_controls": [
             "Temporal train/validation/test split",

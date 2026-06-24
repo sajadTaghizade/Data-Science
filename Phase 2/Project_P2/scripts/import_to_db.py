@@ -5,7 +5,7 @@ from __future__ import annotations
 import ast
 import logging
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -123,7 +123,7 @@ def choose_database_path() -> Path:
             if fallback.exists():
                 fallback.unlink()
         except PermissionError:
-            timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+            timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ")
             fallback = fallback.with_name(f"stackoverflow_questions_active_{timestamp}.db")
         logger.warning(
             "%s is open in another application; building %s for this run.",

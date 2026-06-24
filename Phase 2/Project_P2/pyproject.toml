@@ -1,0 +1,14 @@
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+# Notebooks are narrative reports, not library code; lint the pipeline only.
+extend-exclude = ["*.ipynb"]
+
+[tool.ruff.lint]
+# A pragmatic, professional rule set: pyflakes (F), pycodestyle (E/W),
+# import sorting (I), pyupgrade (UP), and bugbear (B).
+select = ["E", "F", "W", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests may use module-level import side effects and assert-heavy style.
+"tests/*" = ["E402"]

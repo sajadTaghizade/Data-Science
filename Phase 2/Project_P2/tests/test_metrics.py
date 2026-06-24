@@ -15,7 +15,6 @@ from scripts.feature_engineering import (
     relevant_indices_for_query,
 )
 
-
 RANKED = [0, 1, 2, 3, 4]
 RELEVANT = {2, 4}
 

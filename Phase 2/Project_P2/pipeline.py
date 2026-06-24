@@ -7,7 +7,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 logger = logging.getLogger("pipeline")
 
 PROJECT_ROOT = Path(__file__).resolve().parent

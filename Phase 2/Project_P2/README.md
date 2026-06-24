@@ -25,8 +25,10 @@ This choice is better supported by the data than the alternatives:
 The pipeline treats the recommender as a real retrieval problem rather than just producing feature columns:
 
 - **Temporal train/validation/test split (70/15/15)** ordered by question creation date. We recommend historical questions for newer ones, so a time-based split avoids leaking the future into the past.
-- **Three text representations**, each fit on the training corpus only: word TF-IDF on the title, word TF-IDF on the full document, and a character n-gram TF-IDF (robust to C++ syntax, library and function names, and error strings).
+- **Four text representations**, each fit on the training corpus only: word TF-IDF on the title, word TF-IDF on the full document, a character n-gram TF-IDF (robust to C++ syntax, library and function names, and error strings), and an **LSA** representation (`TruncatedSVD` over a document TF-IDF) that captures latent semantics beyond exact lexical overlap — a lightweight, dependency-free "embedding".
 - **Hybrid weighted ensemble** whose weights are selected by grid search **on validation only**.
+
+  > Note: because the offline relevance signal is tag overlap (a lexical/topical proxy), the lexical TF-IDF representations dominate that metric and LSA is assigned a small weight. LSA is retained for representation diversity and as a genuinely semantic component for Phase 3; its benefit (matching semantically related but lexically different questions) is not fully captured by tag-overlap relevance.
 - **Weak relevance labels** from secondary-tag overlap (the universal `c++` tag is removed so it cannot create artificial relevance). Tags are used as evaluation labels and optional metadata — **not** as scoring features — to avoid leakage.
 - **The test set is evaluated exactly once** for the final report; the model is then refit on all data for deployment.
 - **Baseline comparison**: the hybrid model is benchmarked against random-order and popularity baselines on the same test set to prove it adds real value (it beats both by a wide margin on every metric).
@@ -152,6 +154,15 @@ python -m pytest
 
 These tests are intended to run in CI (Section 4) so that every push verifies
 correctness, not just that the pipeline executes.
+
+### Linting
+
+Code style and common bugs are checked with [ruff](https://docs.astral.sh/ruff/)
+(configured in `pyproject.toml`):
+
+```bash
+python -m ruff check .
+```
 
 ## Reports and evidence
 

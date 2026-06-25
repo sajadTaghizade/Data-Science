@@ -164,6 +164,24 @@ Code style and common bugs are checked with [ruff](https://docs.astral.sh/ruff/)
 python -m ruff check .
 ```
 
+## Continuous Integration (Section 4)
+
+A GitHub Actions workflow (`.github/workflows/pipeline.yml`, at the repository
+root) runs automatically on every push and pull request. On an `ubuntu-latest`
+runner it:
+
+1. sets up Python 3.12,
+2. installs `requirements.txt`,
+3. runs `ruff` (lint),
+4. runs `pytest` (the unit tests),
+5. runs the full `python pipeline.py`.
+
+So every change is verified for both **style/correctness** (lint + tests) and
+**end-to-end reproducibility** (the whole DB → preprocess → features pipeline
+rebuilt from the source CSV), not merely that the code imports. The green run is
+the Section 4 deliverable; capture a screenshot from the repository's **Actions**
+tab for submission.
+
 ## Reports and evidence
 
 - `section1_database_report.ipynb` is committed **with its outputs saved**: database schema, import verification, integrity checks, and SQL query results. Its schema DDL and import logic are imported from `scripts/import_to_db.py` so the report cannot drift from the pipeline code.

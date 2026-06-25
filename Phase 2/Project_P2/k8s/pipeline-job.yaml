@@ -1,0 +1,35 @@
+# Runs the containerized pipeline once inside a local Kubernetes (Minikube) cluster.
+#
+#   minikube start
+#   docker build -f "Phase 2/Project_P2/Dockerfile" -t so-recommender:latest .
+#   minikube image load so-recommender:latest
+#   kubectl apply -f "Phase 2/Project_P2/k8s/pipeline-job.yaml"
+#   kubectl wait --for=condition=complete job/ds-pipeline --timeout=600s
+#   kubectl logs job/ds-pipeline
+#
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ds-pipeline
+  labels:
+    app: ds-pipeline
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: ds-pipeline
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: pipeline
+          image: so-recommender:latest
+          # Use the image loaded into Minikube instead of pulling from a registry.
+          imagePullPolicy: Never
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "2Gi"

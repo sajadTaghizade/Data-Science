@@ -1,0 +1,17 @@
+# Keep the Docker build context small and reproducible.
+.git
+**/__pycache__
+**/*.pyc
+**/.ipynb_checkpoints
+
+# Generated pipeline artefacts (rebuilt inside the container).
+Phase 2/Project_P2/data
+
+# Unrelated coursework / files not needed by the pipeline image.
+CA0
+CA1
+CA2
+CA3
+CA4
+Guide.ipynb
+tempCodeRunnerFile.python

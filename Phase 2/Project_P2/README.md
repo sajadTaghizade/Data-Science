@@ -182,6 +182,42 @@ rebuilt from the source CSV), not merely that the code imports. The green run is
 the Section 4 deliverable; capture a screenshot from the repository's **Actions**
 tab for submission.
 
+## MLOps: Docker & Kubernetes (Section 5, optional bonus)
+
+These steps must be run on a machine with Docker/Minikube installed (a CI/cloud
+runner cannot build images), and produce the screenshots required for the bonus.
+
+### Docker (5%)
+
+Build from the **repository root** (so the source CSV in `Phase 1/` is in the
+build context) and run the pipeline inside the container:
+
+```bash
+docker build -f "Phase 2/Project_P2/Dockerfile" -t so-recommender .
+docker run --rm so-recommender
+```
+
+A successful run prints the pipeline log lines ending with
+`Pipeline completed successfully.` Capture the build output and the run output
+as screenshots.
+
+### Kubernetes / Minikube (15%)
+
+Run the same image as a one-shot `Job` in a local cluster:
+
+```bash
+minikube start
+docker build -f "Phase 2/Project_P2/Dockerfile" -t so-recommender:latest .
+minikube image load so-recommender:latest        # make the local image visible to the cluster
+kubectl apply -f "Phase 2/Project_P2/k8s/pipeline-job.yaml"
+kubectl wait --for=condition=complete job/ds-pipeline --timeout=600s
+kubectl get pods                                  # screenshot: pod Completed
+kubectl logs job/ds-pipeline                      # screenshot: pipeline log
+```
+
+`imagePullPolicy: Never` in the manifest tells Kubernetes to use the
+Minikube-loaded local image instead of pulling from a registry.
+
 ## Reports and evidence
 
 - `section1_database_report.ipynb` is committed **with its outputs saved**: database schema, import verification, integrity checks, and SQL query results. Its schema DDL and import logic are imported from `scripts/import_to_db.py` so the report cannot drift from the pipeline code.

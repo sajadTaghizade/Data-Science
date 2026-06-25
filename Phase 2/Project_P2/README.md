@@ -12,13 +12,15 @@ This choice is better supported by the data than the alternatives:
 - Auto-tagging has 1,691 unique tags for 2,500 questions, creating a sparse long-tailed multi-label problem.
 - Recommendation directly uses the rich text available for every question.
 
-## Sections 1–3 coverage
+## Phase 2 coverage
 
 | Phase 2 section | Delivered implementation |
 | --- | --- |
 | 1. Database implementation and querying | SQLite database, normalized `users`, `questions`, `tags`, and `question_tags` tables; foreign keys, constraints, indexes, automated Pandas/SQLAlchemy import, and SQL query examples in `section1_database_report.ipynb`. |
 | 2. EDA, preprocessing, and feature engineering | `section2_eda_report.ipynb`: EDA, technical text cleaning, **temporal anti-leakage split**, multiple TF-IDF representations, a tuned **hybrid ensemble**, and quantitative retrieval metrics (`Hit@K`, `Recall@K`, `MAP@K`, `MRR@K`, `nDCG@K`). |
 | 3. AI pipeline | Modular scripts in `scripts/`, `pipeline.py`, declared dependencies, and reproducible generated artefacts. |
+| 4. CI/CD | GitHub Actions workflow that runs ruff + pytest + the full pipeline on every push/PR (green on `main`). |
+| 5. MLOps (optional bonus) | `Dockerfile` and a Minikube `Job` manifest; the pipeline has been run and verified both in a Docker container and in a local Kubernetes cluster. |
 
 ## Modeling methodology (Sections 2 & 3)
 
@@ -184,8 +186,11 @@ tab for submission.
 
 ## MLOps: Docker & Kubernetes (Section 5, optional bonus)
 
-These steps must be run on a machine with Docker/Minikube installed (a CI/cloud
-runner cannot build images), and produce the screenshots required for the bonus.
+Both paths below have been run and verified: the containerized pipeline and the
+Minikube `Job` each complete successfully and reproduce the **identical** metrics
+seen locally and in CI (`Hit@10 = 0.824`, `nDCG@10 = 0.361`) — confirming full
+reproducibility. Run them on a machine with Docker/Minikube installed (a CI/cloud
+runner cannot build images) and capture the screenshots for the bonus.
 
 ### Docker (5%)
 

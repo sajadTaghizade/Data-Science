@@ -1,2 +1,6 @@
 __pycache__/
 *.pyc
+
+# Large local data artifacts that can be regenerated or downloaded.
+/CA5/data/raw/
+/Phase 2/section1_database/data/

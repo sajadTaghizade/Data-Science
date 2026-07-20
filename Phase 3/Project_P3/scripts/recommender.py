@@ -63,6 +63,7 @@ CANDIDATE_MODEL_NAMES = (
     "char_wb_tfidf",
     "lsa_document",
     "bm25_document",
+    "document_prf",
 )
 
 
@@ -110,28 +111,59 @@ def ndcg_at_k(ranked: list[int], relevant: set[int], k: int) -> float:
     return dcg / idcg if idcg else 0.0
 
 
-def relevant_indices_for_query(query_tags: list[str], candidate_tags: list[set[str]]) -> set[int]:
-    """Weak relevance label: a candidate is relevant if it shares a non-global tag."""
+def relevance_grades_for_query(query_tags: list[str], candidate_tags: list[set[str]]) -> dict[int, int]:
+    """Graded relevance label: a candidate's grade is how many non-global tags it shares.
+
+    Sharing two tags (e.g. ``templates`` **and** ``constexpr``) is stronger evidence of
+    similarity than sharing one, so the grade rewards it. Binary relevance is just
+    ``grade > 0``; graded nDCG uses the grades themselves.
+    """
     query_secondary = secondary_tags(query_tags)
     if not query_secondary:
-        return set()
-    return {i for i, tags in enumerate(candidate_tags) if query_secondary & tags}
+        return {}
+    grades = {}
+    for i, tags in enumerate(candidate_tags):
+        shared = len(query_secondary & tags)
+        if shared:
+            grades[i] = shared
+    return grades
+
+
+def relevant_indices_for_query(query_tags: list[str], candidate_tags: list[set[str]]) -> set[int]:
+    """Weak (binary) relevance label: a candidate is relevant if it shares a non-global tag."""
+    return set(relevance_grades_for_query(query_tags, candidate_tags))
+
+
+def ndcg_graded_at_k(ranked: list[int], grades: dict[int, int], k: int) -> float:
+    """nDCG with *graded* gains (2**grade - 1), rewarding higher-grade hits ranked higher."""
+    if not grades:
+        return np.nan
+    dcg = sum((2 ** grades.get(idx, 0) - 1) / np.log2(rank + 1)
+              for rank, idx in enumerate(ranked[:k], start=1))
+    ideal = sorted(grades.values(), reverse=True)[:k]
+    idcg = sum((2 ** grade - 1) / np.log2(rank + 1) for rank, grade in enumerate(ideal, start=1))
+    return dcg / idcg if idcg else 0.0
 
 
 def evaluate_rankings(rankings, query_tag_lists, candidate_tag_sets, k_values=K_VALUES) -> dict:
-    """Average the ranking metrics over every query that has at least one relevant candidate."""
-    relevant_sets = [relevant_indices_for_query(tags, candidate_tag_sets) for tags in query_tag_lists]
-    valid = [(ranked, relevant) for ranked, relevant in zip(rankings, relevant_sets, strict=True) if relevant]
+    """Average the ranking metrics over every query that has at least one relevant candidate.
+
+    Reports both the strict **binary** metrics (Hit/Recall/MAP/MRR/nDCG) and a fairer
+    **graded** nDCG (``gnDCG@k``) that credits candidates sharing more tags.
+    """
+    grade_maps = [relevance_grades_for_query(tags, candidate_tag_sets) for tags in query_tag_lists]
+    valid = [(ranked, grades) for ranked, grades in zip(rankings, grade_maps, strict=True) if grades]
     results = {
         "evaluated_queries": len(valid),
         "coverage": len(valid) / len(query_tag_lists) if len(query_tag_lists) else 0.0,
     }
     for k in k_values:
-        results[f"Hit@{k}"] = np.mean([hit_at_k(r, rel, k) for r, rel in valid]) if valid else np.nan
-        results[f"Recall@{k}"] = np.mean([recall_at_k(r, rel, k) for r, rel in valid]) if valid else np.nan
-        results[f"MAP@{k}"] = np.mean([average_precision_at_k(r, rel, k) for r, rel in valid]) if valid else np.nan
-        results[f"MRR@{k}"] = np.mean([reciprocal_rank_at_k(r, rel, k) for r, rel in valid]) if valid else np.nan
-        results[f"nDCG@{k}"] = np.mean([ndcg_at_k(r, rel, k) for r, rel in valid]) if valid else np.nan
+        results[f"Hit@{k}"] = np.mean([hit_at_k(r, set(g), k) for r, g in valid]) if valid else np.nan
+        results[f"Recall@{k}"] = np.mean([recall_at_k(r, set(g), k) for r, g in valid]) if valid else np.nan
+        results[f"MAP@{k}"] = np.mean([average_precision_at_k(r, set(g), k) for r, g in valid]) if valid else np.nan
+        results[f"MRR@{k}"] = np.mean([reciprocal_rank_at_k(r, set(g), k) for r, g in valid]) if valid else np.nan
+        results[f"nDCG@{k}"] = np.mean([ndcg_at_k(r, set(g), k) for r, g in valid]) if valid else np.nan
+        results[f"gnDCG@{k}"] = np.mean([ndcg_graded_at_k(r, g, k) for r, g in valid]) if valid else np.nan
     return results
 
 
@@ -258,31 +290,104 @@ class BM25Model:
         return self.weight_matrix.shape[0]
 
 
+@dataclass
+class PRFTfidfModel:
+    """TF-IDF cosine with **pseudo-relevance feedback** (Rocchio query expansion).
+
+    A classic information-retrieval trick that needs no embeddings: do a first
+    retrieval, *assume* the top-M results are relevant, add their average vector
+    to the query (``expanded = alpha*query + beta*centroid``), then retrieve
+    again. This pulls in questions that use related vocabulary the original query
+    did not mention, improving recall. Fully vectorised via a sparse feedback
+    matrix, so it scores a whole batch of queries at once.
+    """
+
+    name: str
+    field: str
+    top_m: int = 10
+    alpha: float = 1.0
+    beta: float = 0.6
+    params: dict | None = None
+    vectorizer: TfidfVectorizer | None = None
+    candidate_matrix: sparse.csr_matrix | None = None
+
+    def fit(self, corpus_df: pd.DataFrame) -> PRFTfidfModel:
+        params = self.params or {"analyzer": "word", "ngram_range": (1, 2), "min_df": 2,
+                                 "max_df": 0.90, "max_features": 60000, "token_pattern": TOKEN_PATTERN}
+        self.vectorizer = TfidfVectorizer(lowercase=False, norm="l2", sublinear_tf=True, **params)
+        self.candidate_matrix = self.vectorizer.fit_transform(corpus_df[self.field].fillna(""))
+        return self
+
+    def score(self, query_df: pd.DataFrame) -> np.ndarray:
+        from sklearn.preprocessing import normalize
+        queries = self.vectorizer.transform(query_df[self.field].fillna(""))
+        first = queries @ self.candidate_matrix.T
+        first = first.toarray() if sparse.issparse(first) else np.asarray(first)
+
+        n_queries, n_candidates = first.shape
+        top_m = min(self.top_m, n_candidates)
+        # Build a sparse feedback matrix F (n_queries x n_candidates): 1/top_m on the
+        # top-M candidates of each query. F @ candidate_matrix = per-query centroid.
+        top_idx = np.concatenate([np.argpartition(-row, top_m - 1)[:top_m] for row in first])
+        rows = np.repeat(np.arange(n_queries), top_m)
+        feedback = sparse.csr_matrix((np.full(n_queries * top_m, 1.0 / top_m), (rows, top_idx)),
+                                     shape=(n_queries, n_candidates))
+        centroids = feedback @ self.candidate_matrix
+        expanded = normalize(self.alpha * queries + self.beta * centroids)
+        final = expanded @ self.candidate_matrix.T
+        return final.toarray() if sparse.issparse(final) else np.asarray(final)
+
+    @property
+    def candidate_count(self) -> int:
+        return self.candidate_matrix.shape[0]
+
+
 # --------------------------------------------------------------------------- #
 # Model factory
 # --------------------------------------------------------------------------- #
-def build_candidate_models() -> list:
-    """Instantiate (unfitted) the full set of candidate recommender models."""
+DOCUMENT_TFIDF_PARAMS = {"analyzer": "word", "ngram_range": (1, 2), "min_df": 2, "max_df": 0.90,
+                         "max_features": 60000, "token_pattern": TOKEN_PATTERN}
+
+
+def build_candidate_models(bm25_params: dict | None = None) -> list:
+    """Instantiate (unfitted) the full set of candidate recommender models.
+
+    ``bm25_params`` lets the training pipeline pass BM25's tuned ``k1``/``b``.
+    """
+    bm25_params = bm25_params or {"k1": 1.5, "b": 0.75}
     return [
         TfidfCosineModel("title_word_tfidf", "title_clean", {
             "analyzer": "word", "ngram_range": (1, 3), "min_df": 1, "max_df": 0.95,
             "max_features": 20000, "token_pattern": TOKEN_PATTERN}),
-        TfidfCosineModel("document_word_tfidf", "document_clean", {
-            "analyzer": "word", "ngram_range": (1, 2), "min_df": 2, "max_df": 0.90,
-            "max_features": 60000, "token_pattern": TOKEN_PATTERN}),
+        TfidfCosineModel("document_word_tfidf", "document_clean", dict(DOCUMENT_TFIDF_PARAMS)),
         TfidfCosineModel("char_wb_tfidf", "document_clean", {
             "analyzer": "char_wb", "ngram_range": (3, 5), "min_df": 2, "max_df": 0.95,
             "max_features": 50000}),
         LsaCosineModel("lsa_document", "document_clean", n_components=200),
-        BM25Model("bm25_document", "document_clean", k1=1.5, b=0.75),
+        BM25Model("bm25_document", "document_clean", **bm25_params),
+        PRFTfidfModel("document_prf", "document_clean", top_m=10, alpha=1.0, beta=0.6),
     ]
 
 
-def fit_candidate_models(corpus_df: pd.DataFrame) -> list:
-    models = build_candidate_models()
+def fit_candidate_models(corpus_df: pd.DataFrame, bm25_params: dict | None = None) -> list:
+    models = build_candidate_models(bm25_params)
     for model in models:
         model.fit(corpus_df)
     return models
+
+
+def tune_bm25(train_df: pd.DataFrame, val_df: pd.DataFrame, candidate_secondary,
+              metric: str = PRIMARY_METRIC) -> tuple[dict, pd.DataFrame]:
+    """Grid-search BM25's ``k1`` and ``b`` on validation; return the best params + the search table."""
+    rows = []
+    for k1 in (1.0, 1.5, 2.0):
+        for b in (0.5, 0.75, 0.9):
+            model = BM25Model("bm25_document", "document_clean", k1=k1, b=b).fit(train_df)
+            metrics = evaluate_rankings(rank_single(model, val_df), val_df["tag_list"], candidate_secondary)
+            rows.append({"k1": k1, "b": b, metric: metrics[metric]})
+    table = pd.DataFrame(rows).sort_values(metric, ascending=False).reset_index(drop=True)
+    best = {"k1": float(table.iloc[0]["k1"]), "b": float(table.iloc[0]["b"])}
+    return best, table
 
 
 # --------------------------------------------------------------------------- #
@@ -337,6 +442,31 @@ def rank_hybrid(models: list, query_df: pd.DataFrame, weights: dict[str, float],
     return rank_from_scores(combine_scores(models, query_df, weights), top_k)
 
 
+def mmr_rerank(relevance: np.ndarray, similarity: np.ndarray, top_k: int, lambda_: float = 0.7) -> list[int]:
+    """Maximal Marginal Relevance: re-order candidates to balance relevance and diversity.
+
+    Each pick maximises ``lambda*relevance - (1-lambda)*max_similarity_to_already_picked``,
+    so near-duplicate results are pushed down and the top-K covers more ground.
+    ``relevance`` and ``similarity`` are over the same candidate subset (both indexed
+    0..n-1); returns local indices in MMR order. ``lambda_=1`` reduces to plain ranking.
+    """
+    n = len(relevance)
+    top_k = min(top_k, n)
+    span = relevance.max() - relevance.min()
+    rel = (relevance - relevance.min()) / span if span > 0 else np.zeros(n)
+    selected: list[int] = []
+    remaining = list(range(n))
+    while len(selected) < top_k and remaining:
+        if not selected:
+            best = max(remaining, key=lambda c: rel[c])
+        else:
+            best = max(remaining,
+                       key=lambda c: lambda_ * rel[c] - (1 - lambda_) * max(similarity[c, s] for s in selected))
+        selected.append(best)
+        remaining.remove(best)
+    return selected
+
+
 # --------------------------------------------------------------------------- #
 # Splitting, sampling, hyperparameter grid, and baselines
 # --------------------------------------------------------------------------- #
@@ -362,23 +492,30 @@ def sample_queries(df: pd.DataFrame, max_n: int = MAX_EVAL_QUERIES, seed: int = 
     return df.sample(n=max_n, random_state=seed).sort_values("creation_at").reset_index(drop=True)
 
 
-def hybrid_weight_grid() -> list[dict[str, float]]:
-    """Normalised weight combinations for the five candidate models (tuned on validation)."""
-    grid = []
-    for title_w in (0.2, 0.3):
-        for doc_w in (0.3, 0.4):
-            for char_w in (0.1, 0.2):
-                for lsa_w in (0.1, 0.2):
-                    for bm25_w in (0.2, 0.3, 0.4):
-                        total = title_w + doc_w + char_w + lsa_w + bm25_w
-                        grid.append({
-                            "title_word_tfidf": title_w / total,
-                            "document_word_tfidf": doc_w / total,
-                            "char_wb_tfidf": char_w / total,
-                            "lsa_document": lsa_w / total,
-                            "bm25_document": bm25_w / total,
-                        })
-    return grid
+def sample_hybrid_weights(model_names, n_random: int = 60, seed: int = RANDOM_STATE) -> list[dict[str, float]]:
+    """Candidate weight vectors for the hybrid, tuned on validation.
+
+    Scales to any number of models: it mixes structured seeds (uniform, and each
+    single model dominant) with random simplex points drawn from a Dirichlet
+    distribution - a standard randomised hyperparameter search that avoids the
+    combinatorial blow-up of a hand-built grid.
+    """
+    names = list(model_names)
+    n = len(names)
+    combos: list[dict[str, float]] = [dict.fromkeys(names, 1.0 / n)]  # uniform blend
+    for i in range(n):  # each-model-dominant seeds
+        weights = {name: 0.1 / (n - 1) for name in names}
+        weights[names[i]] = 0.9
+        combos.append(weights)
+    rng = np.random.default_rng(seed)
+    for sample in rng.dirichlet(np.ones(n), size=n_random):
+        combos.append({name: float(w) for name, w in zip(names, sample, strict=True)})
+    return combos
+
+
+def hybrid_weight_grid() -> list[dict[str, float]]:  # backwards-compatible helper
+    """Default hybrid weight candidates over the standard candidate model set."""
+    return sample_hybrid_weights(CANDIDATE_MODEL_NAMES)
 
 
 def rank_random(n_queries: int, n_candidates: int, top_k: int, seed: int = RANDOM_STATE) -> list[list[int]]:
@@ -423,13 +560,24 @@ def _score_with_selection(artifact: RecommenderArtifact, query_df: pd.DataFrame)
     return model.score(query_df)
 
 
-def recommend(artifact: RecommenderArtifact, query_df: pd.DataFrame, top_k: int = 10) -> list[list[dict]]:
+def _diversity_vectors(artifact: RecommenderArtifact):
+    """L2-normalised candidate vectors used for MMR similarity (document TF-IDF if available)."""
+    for model in artifact.models:
+        if model.name == "document_word_tfidf" and getattr(model, "candidate_matrix", None) is not None:
+            return model.candidate_matrix
+    return None
+
+
+def recommend(artifact: RecommenderArtifact, query_df: pd.DataFrame, top_k: int = 10,
+              diversity: float = 1.0, mmr_pool: int = 50) -> list[list[dict]]:
     """Return, per query row, the ``top_k`` most similar candidate questions.
 
     A candidate that is the query itself (same ``question_id``) is skipped so a
-    question is never recommended to itself. Each recommendation is a dict with
-    the candidate ``question_id``, its ``rank`` (1-based), the ``score``, and the
-    candidate ``title``/``question_url`` for readability.
+    question is never recommended to itself. When ``diversity < 1.0`` the top
+    candidates are re-ranked with **MMR** (``diversity`` is the MMR ``lambda``) to
+    reduce near-duplicate recommendations. Each recommendation is a dict with the
+    candidate ``question_id``, ``rank`` (1-based), ``score``, and the candidate
+    ``title``/``question_url``.
     """
     scores = _score_with_selection(artifact, query_df)
     candidate_ids = artifact.candidates["question_id"].to_numpy()
@@ -438,25 +586,37 @@ def recommend(artifact: RecommenderArtifact, query_df: pd.DataFrame, top_k: int 
     candidate_urls = artifact.candidates["question_url"].astype(str).to_numpy() if has_url else None
     query_ids = query_df["question_id"].to_numpy() if "question_id" in query_df.columns else [None] * len(query_df)
 
-    # Retrieve a few extra so we can drop a self-match and still return top_k.
-    ranked = rank_from_scores(scores, min(top_k + 1, scores.shape[1]))
+    use_mmr = diversity < 1.0
+    div_vectors = _diversity_vectors(artifact) if use_mmr else None
+    n_candidates = scores.shape[1]
+    # Retrieve a pool wide enough to drop self-matches and give MMR room to diversify.
+    pool_size = min(max(mmr_pool, top_k + 1), n_candidates) if use_mmr else min(top_k + 1, n_candidates)
+    ranked = rank_from_scores(scores, pool_size)
+
     results = []
     for row_position, ranking in enumerate(ranked):
         query_id = query_ids[row_position]
+        pool = [c for c in ranking if candidate_ids[c] != query_id]  # drop self up front
+
+        if use_mmr and div_vectors is not None and len(pool) > 1:
+            vectors = div_vectors[pool]
+            similarity = vectors @ vectors.T
+            similarity = similarity.toarray() if sparse.issparse(similarity) else np.asarray(similarity)
+            order = mmr_rerank(scores[row_position, pool], similarity, top_k, lambda_=diversity)
+            chosen = [pool[i] for i in order]
+        else:
+            chosen = pool[:top_k]
+
         recommendations = []
-        for candidate_index in ranking:
-            if candidate_ids[candidate_index] == query_id:
-                continue  # never recommend the question to itself
+        for rank, candidate_index in enumerate(chosen, start=1):
             entry = {
                 "recommended_question_id": int(candidate_ids[candidate_index]),
-                "rank": len(recommendations) + 1,
+                "rank": rank,
                 "score": float(scores[row_position, candidate_index]),
                 "recommended_title": candidate_titles[candidate_index],
             }
             if candidate_urls is not None:
                 entry["recommended_url"] = candidate_urls[candidate_index]
             recommendations.append(entry)
-            if len(recommendations) >= top_k:
-                break
         results.append(recommendations)
     return results

@@ -49,6 +49,9 @@ HYBRID_SEARCH_PATH = PROJECT_ROOT / "data" / "reports" / "section2_hybrid_weight
 TEST_METRICS_PATH = PROJECT_ROOT / "data" / "reports" / "section2_test_metrics.csv"
 BASELINE_METRICS_PATH = PROJECT_ROOT / "data" / "reports" / "section2_baseline_vs_model_test.csv"
 TRAINING_REPORT_PATH = PROJECT_ROOT / "data" / "reports" / "phase3_training_report.json"
+BM25_TUNING_PATH = PROJECT_ROOT / "data" / "reports" / "section2_bm25_tuning.csv"
+ABLATION_PATH = PROJECT_ROOT / "data" / "reports" / "section2_hybrid_ablation.csv"
+ERROR_ANALYSIS_PATH = PROJECT_ROOT / "data" / "reports" / "section2_error_analysis_worst_queries.csv"
 
 CV_FOLDS = 5
 TOP_K_EVAL = 50
@@ -127,6 +130,50 @@ def _mlflow_log(params: dict, metrics: dict, artifact_paths: list) -> str | None
 
 
 # --------------------------------------------------------------------------- #
+# Ablation study and error analysis
+# --------------------------------------------------------------------------- #
+def leave_one_out_ablation(val_norm, best_weights, val_df, candidate_secondary, folds):
+    """Each model's contribution to the hybrid: the CV nDCG@10 drop when it is removed."""
+    active = [name for name, weight in best_weights.items() if weight > 0]
+    full = sum(best_weights[name] * val_norm[name] for name in active)
+    full_cv, _ = cross_val_primary(full, val_df, candidate_secondary, folds)
+    rows = []
+    for name in active:
+        remaining = [other for other in active if other != name]
+        total = sum(best_weights[other] for other in remaining)
+        if not remaining or total == 0:
+            loo_cv = float("nan")
+        else:
+            combined = sum((best_weights[other] / total) * val_norm[other] for other in remaining)
+            loo_cv, _ = cross_val_primary(combined, val_df, candidate_secondary, folds)
+        rows.append({"removed_model": name, "hybrid_without_it_cv_nDCG@10": loo_cv,
+                     "contribution": full_cv - loo_cv})
+    table = pd.DataFrame(rows).sort_values("contribution", ascending=False).reset_index(drop=True)
+    return full_cv, table
+
+
+def error_analysis(test_scores, test_df, train_df, candidate_secondary, top_n_worst=15):
+    """Return the hardest test queries (relevant candidates exist, yet nDCG@10 is lowest)."""
+    rankings = R.rank_from_scores(test_scores, TOP_K_EVAL)
+    train_titles = train_df["title"].astype(str).to_numpy() if "title" in train_df.columns else None
+    query_titles = test_df["title"].astype(str).to_numpy() if "title" in test_df.columns else [""] * len(test_df)
+    query_tags = test_df["tag_list"].tolist()
+    rows = []
+    for i, ranked in enumerate(rankings):
+        grades = R.relevance_grades_for_query(query_tags[i], candidate_secondary)
+        if not grades:
+            continue  # not evaluable (no non-global tag), so it cannot be a scored "error"
+        rows.append({
+            "query_question_id": int(test_df.iloc[i]["question_id"]),
+            "query_title": query_titles[i],
+            "query_tags": "|".join(query_tags[i]),
+            "nDCG@10": R.ndcg_at_k(ranked, set(grades), 10),
+            "top1_recommended_title": train_titles[ranked[0]] if train_titles is not None else "",
+        })
+    return pd.DataFrame(rows).sort_values("nDCG@10").head(top_n_worst).reset_index(drop=True)
+
+
+# --------------------------------------------------------------------------- #
 # Training pipeline
 # --------------------------------------------------------------------------- #
 def main() -> None:
@@ -141,27 +188,29 @@ def main() -> None:
     train_secondary = [secondary_tags(tags) for tags in train_df["tag_list"]]
     logger.info("Split (temporal): train=%d  val=%d  test=%d", len(train_df), len(val_df), len(test_df))
 
-    # 2. Fit candidates on TRAIN only --------------------------------------
-    models = R.fit_candidate_models(train_df)
+    # 2. Tune BM25 (k1, b) on validation, then fit all candidates on TRAIN only
+    best_bm25_params, bm25_tuning_table = R.tune_bm25(train_df, val_df, train_secondary)
+    logger.info("Tuned BM25: k1=%.1f b=%.2f", best_bm25_params["k1"], best_bm25_params["b"])
+    models = R.fit_candidate_models(train_df, bm25_params=best_bm25_params)
 
     # Precompute each model's validation score matrix once (fast CV & tuning).
     val_scores = {model.name: model.score(val_df) for model in models}
     val_norm = {name: R.normalize_rows(scores) for name, scores in val_scores.items()}
     folds = _fold_assignments(len(val_df), CV_FOLDS)
 
-    # 3+4. Model selection & hybrid tuning via cross-validated nDCG@10 ------
-    selection_rows = []
-    for model in models:
-        cv_mean, cv_std = cross_val_primary(val_scores[model.name], val_df, train_secondary, folds)
-        full = R.evaluate_rankings(R.rank_from_scores(val_scores[model.name], TOP_K_EVAL),
+    def _selection_row(name, kind, score_matrix):
+        cv_mean, cv_std = cross_val_primary(score_matrix, val_df, train_secondary, folds)
+        full = R.evaluate_rankings(R.rank_from_scores(score_matrix, TOP_K_EVAL),
                                    val_df["tag_list"], train_secondary)
-        selection_rows.append({"model": model.name, "type": "single",
-                               "cv_nDCG@10_mean": cv_mean, "cv_nDCG@10_std": cv_std,
-                               "val_Hit@10": full["Hit@10"], "val_MRR@10": full["MRR@10"],
-                               "val_nDCG@10": full["nDCG@10"]})
+        return {"model": name, "type": kind, "cv_nDCG@10_mean": cv_mean, "cv_nDCG@10_std": cv_std,
+                "val_Hit@10": full["Hit@10"], "val_MRR@10": full["MRR@10"],
+                "val_nDCG@10": full["nDCG@10"], "val_gnDCG@10": full["gnDCG@10"]}
+
+    # 3+4. Model selection & hybrid tuning via cross-validated nDCG@10 ------
+    selection_rows = [_selection_row(model.name, "single", val_scores[model.name]) for model in models]
 
     hybrid_rows = []
-    for weights in R.hybrid_weight_grid():
+    for weights in R.sample_hybrid_weights(R.CANDIDATE_MODEL_NAMES):
         combined = sum(weights[name] * val_norm[name] for name in weights)
         cv_mean, cv_std = cross_val_primary(combined, val_df, train_secondary, folds)
         row = {"cv_nDCG@10_mean": cv_mean, "cv_nDCG@10_std": cv_std}
@@ -171,13 +220,7 @@ def main() -> None:
     best_weights = {name: float(hybrid_df.iloc[0][name]) for name in R.CANDIDATE_MODEL_NAMES}
 
     best_hybrid_combined = sum(best_weights[name] * val_norm[name] for name in best_weights)
-    hybrid_cv_mean, hybrid_cv_std = cross_val_primary(best_hybrid_combined, val_df, train_secondary, folds)
-    hybrid_full = R.evaluate_rankings(R.rank_from_scores(best_hybrid_combined, TOP_K_EVAL),
-                                      val_df["tag_list"], train_secondary)
-    selection_rows.append({"model": "hybrid", "type": "ensemble",
-                           "cv_nDCG@10_mean": hybrid_cv_mean, "cv_nDCG@10_std": hybrid_cv_std,
-                           "val_Hit@10": hybrid_full["Hit@10"], "val_MRR@10": hybrid_full["MRR@10"],
-                           "val_nDCG@10": hybrid_full["nDCG@10"]})
+    selection_rows.append(_selection_row("hybrid", "ensemble", best_hybrid_combined))
 
     selection_df = pd.DataFrame(selection_rows).sort_values("cv_nDCG@10_mean", ascending=False).reset_index(drop=True)
     best_model_name = selection_df.iloc[0]["model"]
@@ -201,12 +244,18 @@ def main() -> None:
         f"selected_model[{best_model_name}]": test_metrics,
     }
     baseline_df = pd.DataFrame(baseline_metrics).T
-    logger.info("TEST  %s: Hit@10=%.3f  MRR@10=%.3f  nDCG@10=%.3f",
-                best_model_name, test_metrics["Hit@10"], test_metrics["MRR@10"], test_metrics["nDCG@10"])
+    logger.info("TEST  %s: Hit@10=%.3f  MRR@10=%.3f  nDCG@10=%.3f  gnDCG@10=%.3f",
+                best_model_name, test_metrics["Hit@10"], test_metrics["MRR@10"],
+                test_metrics["nDCG@10"], test_metrics["gnDCG@10"])
+
+    # 5b. Ablation study + error analysis -----------------------------------
+    full_hybrid_cv, ablation_df = leave_one_out_ablation(val_norm, best_weights, val_df, train_secondary, folds)
+    logger.info("Hybrid ablation (contribution to CV nDCG@10):\n%s", ablation_df.round(4).to_string(index=False))
+    worst_queries_df = error_analysis(test_scores, test_df, train_df, train_secondary)
 
     # 6. Refit the chosen model on TRAIN+VAL for deployment ------------------
     deploy_corpus = pd.concat([train_df, val_df], ignore_index=True)
-    deploy_models = R.fit_candidate_models(deploy_corpus)
+    deploy_models = R.fit_candidate_models(deploy_corpus, bm25_params=best_bm25_params)
     candidate_meta = deploy_corpus[[c for c in R.CANDIDATE_META_COLUMNS if c in deploy_corpus.columns]].copy()
     artifact = R.RecommenderArtifact(
         models=deploy_models,
@@ -228,6 +277,9 @@ def main() -> None:
     hybrid_df.to_csv(HYBRID_SEARCH_PATH, index=False)
     pd.DataFrame([test_metrics]).to_csv(TEST_METRICS_PATH, index=False)
     baseline_df.to_csv(BASELINE_METRICS_PATH)
+    bm25_tuning_table.to_csv(BM25_TUNING_PATH, index=False)
+    ablation_df.to_csv(ABLATION_PATH, index=False)
+    worst_queries_df.to_csv(ERROR_ANALYSIS_PATH, index=False)
 
     report = {
         "task": "semantic_similar_question_recommendation",
@@ -239,13 +291,23 @@ def main() -> None:
         "cv_folds": CV_FOLDS,
         "selected_best_model": best_model_name,
         "best_hybrid_weights": best_weights,
+        "tuned_bm25_params": best_bm25_params,
         "test_metrics": {k: (float(v) if pd.notna(v) else None) for k, v in test_metrics.items()},
         "baseline_test_metrics": {
             name: {k: (float(v) if pd.notna(v) else None) for k, v in metrics.items()}
             for name, metrics in baseline_metrics.items()
         },
+        "hybrid_ablation": ablation_df.to_dict(orient="records"),
         "deployment_candidate_pool": "train+validation",
         "holdout_test_questions_reserved_for_prediction": len(holdout_test_ids),
+        "enhancements": [
+            "BM25 k1/b tuned on validation",
+            "Pseudo-relevance-feedback model (document_prf) added as a candidate",
+            "Hybrid weights searched via Dirichlet sampling (randomised search)",
+            "Graded nDCG (gnDCG) reported alongside strict binary metrics",
+            "MMR diversity re-ranking available at inference (recommend(diversity=...))",
+            "Leave-one-out ablation + hardest-query error analysis",
+        ],
         "anti_overfit_controls": [
             "Temporal train/validation/test split (no future leaks into the past)",
             "All models fit on the training corpus only",
@@ -267,7 +329,7 @@ def main() -> None:
     mlflow_metrics = {
         "test_Hit@10": test_metrics["Hit@10"], "test_MRR@10": test_metrics["MRR@10"],
         "test_nDCG@10": test_metrics["nDCG@10"], "test_MAP@10": test_metrics["MAP@10"],
-        "test_Recall@10": test_metrics["Recall@10"],
+        "test_Recall@10": test_metrics["Recall@10"], "test_gnDCG@10": test_metrics["gnDCG@10"],
         "cv_best_nDCG@10": float(selection_df.iloc[0]["cv_nDCG@10_mean"]),
     }
     _mlflow_log(mlflow_params, mlflow_metrics, [ARTIFACT_PATH, TRAINING_REPORT_PATH])

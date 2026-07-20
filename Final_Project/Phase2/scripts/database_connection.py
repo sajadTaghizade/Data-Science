@@ -9,7 +9,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 DEFAULT_DATABASE_PATH = DATA_DIR / "stackoverflow_questions.db"
 ACTIVE_DATABASE_POINTER = DATA_DIR / "active_database.txt"
-SOURCE_CSV_PATH = PROJECT_ROOT.parent.parent / "Phase 1" / "stackoverflow_questions.csv"
+SOURCE_CSV_PATH = PROJECT_ROOT.parent / "Phase1" / "stackoverflow_questions.csv"
 
 
 def get_database_path() -> Path:

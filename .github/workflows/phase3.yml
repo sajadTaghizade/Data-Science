@@ -1,4 +1,4 @@
-name: Data Pipeline CI
+name: Phase 3 Recommender CI
 
 on:
   push:
@@ -8,11 +8,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  pipeline-check:
+  phase3-check:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: Final_Project/Phase2
+        working-directory: Final_Project/Phase3
     steps:
       - uses: actions/checkout@v4
 
@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-          cache-dependency-path: Final_Project/Phase2/requirements.txt
+          cache-dependency-path: Final_Project/Phase3/requirements.txt
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -31,5 +31,5 @@ jobs:
       - name: Run tests (pytest)
         run: python -m pytest -q
 
-      - name: Run data pipeline
-        run: python pipeline.py
+      - name: Run full pipeline (train + predict)
+        run: python run_pipeline.py

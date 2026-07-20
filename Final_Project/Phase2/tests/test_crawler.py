@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
-CRAWLER_PATH = Path(__file__).resolve().parents[3] / "Phase 1" / "crawl_stackoverflow.py"
+CRAWLER_PATH = Path(__file__).resolve().parents[2] / "Phase1" / "crawl_stackoverflow.py"
 spec = importlib.util.spec_from_file_location("crawl_stackoverflow", CRAWLER_PATH)
 crawler = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(crawler)

@@ -67,15 +67,16 @@
 
 | مدل | nDCG@10 (میانگین ± انحراف) |
 | --- | --- |
-| **hybrid** ✅ | **۰٫۳۶۷ ± ۰٫۰۲۶** |
+| **hybrid** ✅ | **۰٫۳۸۳ ± ۰٫۰۲۰** |
 | char_wb_tfidf | ۰٫۳۶۴ ± ۰٫۰۲۷ |
 | document_word_tfidf | ۰٫۳۳۵ ± ۰٫۰۲۸ |
-| bm25_document | ۰٫۲۹۰ ± ۰٫۰۲۹ |
+| document_prf | ۰٫۳۳۵ ± ۰٫۰۲۷ |
+| bm25_document (تنظیم‌شده) | ۰٫۳۰۱ ± ۰٫۰۳۰ |
 | lsa_document | ۰٫۲۸۶ ± ۰٫۰۳۰ |
 | title_word_tfidf | ۰٫۱۶۹ ± ۰٫۰۱۹ |
 
-**مدل هیبرید برنده شد** (با اختلاف کم از مدل کاراکتری). یعنی ترکیب هر ۵ نمایش، از هر
-مدل تکی بهتر است. انحراف‌معیار کوچک نشان می‌دهد این ترتیب پایدار است.
+**مدل هیبرید برنده شد.** یعنی ترکیب همه‌ی نمایش‌ها، از هر مدل تکی بهتر است. انحراف‌معیار
+کوچک نشان می‌دهد این ترتیب پایدار است. (۷ کاندید داریم: ۶ مدل تکی + هیبرید.)
 
 ---
 
@@ -103,11 +104,11 @@
 
 | | Hit@10 | MRR@10 | nDCG@10 |
 | --- | --- | --- | --- |
-| **مدل هیبرید** | **۰٫۸۲۷** | **۰٫۵۷۶** | **۰٫۳۵۹** |
+| **مدل هیبرید** | **۰٫۸۳۹** | **۰٫۶۱۳** | **۰٫۳۸۵** |
 | بیس‌لاین محبوبیت | ۰٫۱۳۳ | ۰٫۰۴۸ | ۰٫۰۲۱ |
 | بیس‌لاین تصادفی | ۰٫۲۰۱ | ۰٫۰۷۳ | ۰٫۰۲۴ |
 
-یعنی برای حدود **۸۳٪** از سؤال‌های دیده‌نشده، حداقل یک سؤال مرتبط در ۱۰ نتیجه‌ی اول هست —
+یعنی برای حدود **۸۴٪** از سؤال‌های دیده‌نشده، حداقل یک سؤال مرتبط در ۱۰ نتیجه‌ی اول هست —
 حدود **۴ برابر** بیس‌لاین تصادفی. پس مدل واقعاً «شباهت موضوعی» را یاد گرفته، نه فقط
 سؤال‌های محبوب را نشان دادن.
 
@@ -171,13 +172,39 @@ mlflow ui --backend-store-uri mlruns
 
 ---
 
+## ۵.۵) بهبودهای اضافی (بدون امبدینگ، کاملاً بازتولیدپذیر)
+
+برای قوی‌تر کردن پروژه با همین داده، پنج بهبود اضافه شد:
+
+1. **تنظیم BM25**: پارامترهای `k1` و `b` روی validation جست‌وجو شدند (بهترین: `k1=2.0, b=0.9`).
+2. **مدل PRF (بازخورد شبه‌مرتبط)**: یک‌بار بازیابی می‌کنیم، فرض می‌کنیم چند نتیجه‌ی اول
+   مرتبط‌اند، مرکز آن‌ها را به کوئری اضافه می‌کنیم و دوباره بازیابی می‌کنیم. کلماتِ مرتبطی
+   که کوئری اصلی نداشت را وارد می‌کند.
+3. **متریک graded (gnDCG)**: به‌جای «مرتبط/نامرتبط» دودویی، بر اساس **تعداد تگ مشترک** امتیاز
+   می‌دهد — یک اندازه‌گیری منصفانه‌تر که کنار متریک سخت‌گیرانه گزارش می‌شود.
+4. **MMR (تنوع)**: هنگام پیش‌بینی می‌توان با `diversity=λ` نتایج را طوری چید که تکراری نباشند.
+5. **Ablation + تحلیل خطا**: سهم هر مدل در هیبرید (با حذف تک‌به‌تک) و سخت‌ترین سؤال‌های تست
+   برای بررسی محدودیت‌ها.
+
+**نتیجه‌ی این بهبودها:** عملکرد روی تست بالا رفت — Hit@10 از ۰٫۸۲۷ به **۰٫۸۳۹**، MRR@10 از
+۰٫۵۷۶ به **۰٫۶۱۳**، و nDCG@10 از ۰٫۳۵۹ به **۰٫۳۸۵**. یافته‌ی ablation: مدلِ **کاراکتری**
+بیشترین سهم را دارد.
+
+**دموی تعاملی:** با `scripts/recommend_cli.py` می‌توان زنده توصیه گرفت (برای ویدیو عالی است):
+
+```bash
+python scripts/recommend_cli.py --text "how to std::move a vector into a thread" --diversity 0.7
+python scripts/recommend_cli.py --question-id 79907170 --top-k 5
+```
+
 ## ۶) هر فایل چه‌کار می‌کند؟
 
 | فایل | نقش |
 | --- | --- |
-| `scripts/recommender.py` | قلب پروژه: مدل‌ها (شامل BM25)، متریک‌ها، ترکیب هیبرید، و توابع استنتاج. |
-| `scripts/train_model.py` | مرحله‌ی آموزش: انتخاب مدل + تنظیم + ارزیابی + ذخیره + MLflow. |
+| `scripts/recommender.py` | قلب پروژه: مدل‌ها (BM25، PRF)، متریک‌ها (شامل graded)، هیبرید، MMR، و استنتاج. |
+| `scripts/train_model.py` | مرحله‌ی آموزش: تنظیم + انتخاب مدل + ablation + تحلیل خطا + ذخیره + MLflow. |
 | `scripts/make_predictions.py` | مرحله‌ی پیش‌بینی: بازیابی K سؤال نزدیک و ذخیره در دیتابیس. |
+| `scripts/recommend_cli.py` | دموی تعاملی خط فرمان (با question-id یا متن آزاد؛ پشتیبانی از MMR). |
 | `scripts/database_connection.py`, `import_to_db.py`, `load_data.py`, `preprocess.py` | از فاز ۲: اتصال، ساخت دیتابیس، بارگذاری، پاک‌سازی متن. |
 | `train_pipeline.py` / `predict_pipeline.py` / `run_pipeline.py` | اورکستریتورهای پایپلاین. |
 | `tests/` | تست‌های واحد: متریک‌ها، صحت BM25، واسط مدل‌ها، استنتاج. |
@@ -222,12 +249,15 @@ python -m ruff check .
 ## English summary
 
 Phase 3 turns the Phase 2 similar-question recommender into a full, automated ML
-system. Six candidate models (title/document/char TF-IDF, LSA, a new dependency-free
-**BM25**, and a **hybrid**) are compared under a temporal train/validation/test split
-and selected by **cross-validated nDCG@10**; the hybrid wins (0.367). On the held-out
-test set it reaches **Hit@10 = 0.827 / MRR@10 = 0.576 / nDCG@10 = 0.359**, about **4×**
-the random baseline. A **training pipeline** fits and saves the model; a separate
-**prediction pipeline** loads it, retrieves top-10 similar questions for unseen
-questions, and **saves 3,750 recommendations into a `recommendations` table** in
-SQLite. **MLflow** logs every run's params, metrics, and artefacts. Everything runs
-with `python run_pipeline.py`, is covered by unit tests, and passes `ruff`.
+system. Seven candidates (title/document/char TF-IDF, LSA, a dependency-free
+**BM25**, a **pseudo-relevance-feedback** model, and a **hybrid**) are compared under
+a temporal train/validation/test split and selected by **cross-validated nDCG@10**;
+the hybrid wins (0.383). On the held-out test set it reaches **Hit@10 = 0.839 /
+MRR@10 = 0.613 / nDCG@10 = 0.385**, about **4×** the random baseline. Enhancements
+(all no-embedding, reproducible): **BM25 tuning**, **PRF**, a **randomised hybrid-weight
+search**, **graded nDCG**, **MMR diversity**, and **ablation + error analysis**. A
+**training pipeline** fits and saves the model; a separate **prediction pipeline**
+loads it, retrieves top-10 similar questions for unseen questions, and **saves 3,750
+recommendations into a `recommendations` table** in SQLite. **MLflow** logs every
+run. Everything runs with `python run_pipeline.py`, is covered by 30 unit tests, and
+passes `ruff`.

@@ -18,9 +18,9 @@ recommendations are what we save back to the database.
 
 | Phase 3 section | Delivered implementation |
 | --- | --- |
-| 1. Model development & task definition | Six candidates compared — `title_word_tfidf`, `document_word_tfidf`, `char_wb_tfidf`, `lsa_document`, **`bm25_document`** (new), and a **hybrid** — under a temporal train/validation/test split; best chosen by **cross-validated nDCG@10**. |
-| 2. Model training & evaluation | Hybrid weights tuned on validation with 5-fold CV; the selected model is evaluated **once** on the held-out test set with Hit@K, Recall@K, MAP@K, MRR@K, nDCG@K, and against random/popularity baselines. |
-| 3. Integration into the pipeline (automation) | Separate **training** (`train_pipeline.py`) and **prediction** (`predict_pipeline.py`) pipelines; `run_pipeline.py` runs both with one command. Predictions are written to a `recommendations` table in SQLite. |
+| 1. Model development & task definition | Seven candidates compared — `title_word_tfidf`, `document_word_tfidf`, `char_wb_tfidf`, `lsa_document`, **`bm25_document`**, **`document_prf`** (pseudo-relevance feedback), and a **hybrid** — under a temporal train/validation/test split; best chosen by **cross-validated nDCG@10**. |
+| 2. Model training & evaluation | **BM25 tuned** on validation; hybrid weights searched via Dirichlet sampling with 5-fold CV; the selected model is evaluated **once** on the held-out test set with Hit@K, Recall@K, MAP@K, MRR@K, nDCG@K and a **graded** `gnDCG@K`, plus random/popularity baselines, a **leave-one-out ablation**, and an **error analysis**. |
+| 3. Integration into the pipeline (automation) | Separate **training** (`train_pipeline.py`) and **prediction** (`predict_pipeline.py`) pipelines; `run_pipeline.py` runs both with one command. Predictions are written to a `recommendations` table in SQLite. **MMR diversity** re-ranking is available at inference. |
 | 4. MLflow model management (bonus) | Every training run logs params, metrics, and artefacts (model + report) to a local `mlruns/` store; browse with the MLflow UI. |
 | 5. Final presentation video | Add the Google Drive link in `video_link.txt` (or here) at submission time. |
 
@@ -30,33 +30,43 @@ recommendations are what we save back to the database.
 
 | Model | CV nDCG@10 | | Model | CV nDCG@10 |
 | --- | --- | --- | --- | --- |
-| **hybrid** ✅ | **0.367 ± 0.026** | | bm25_document | 0.290 ± 0.029 |
+| **hybrid** ✅ | **0.383 ± 0.020** | | bm25_document (tuned) | 0.301 ± 0.030 |
 | char_wb_tfidf | 0.364 ± 0.027 | | lsa_document | 0.286 ± 0.030 |
 | document_word_tfidf | 0.335 ± 0.028 | | title_word_tfidf | 0.169 ± 0.019 |
+| document_prf | 0.335 ± 0.027 | | | |
 
-The **hybrid** blend wins, narrowly ahead of the strong character n-gram model;
-BM25 and LSA contribute complementary signal.
+The **hybrid** blend wins; the **character n-gram** model is the strongest single
+component (see the ablation), while BM25, LSA, and PRF add complementary signal.
 
 **Section 2 — selected model on the held-out test set vs. baselines:**
 
 | | Hit@10 | MRR@10 | nDCG@10 |
 | --- | --- | --- | --- |
-| **hybrid model** | **0.827** | **0.576** | **0.359** |
+| **hybrid model** | **0.839** | **0.613** | **0.385** |
 | popularity baseline | 0.133 | 0.048 | 0.021 |
 | random baseline | 0.201 | 0.073 | 0.024 |
 
-The recommender lands a relevant neighbour in the top-10 for ~**83%** of unseen
+The recommender lands a relevant neighbour in the top-10 for ~**84%** of unseen
 questions — about **4×** the random baseline.
 
-## The new model: BM25
+## Models and enhancements (no embeddings, fully reproducible)
 
-Phase 3 adds **Okapi BM25**, the classic probabilistic ranking function used by
-search engines, implemented **dependency-free** on top of a `CountVectorizer`.
-Unlike cosine TF-IDF it *saturates* term frequency and *penalises long documents*,
-giving genuinely different (and competitive) rankings — so "test multiple models
-and pick the best" is a real experiment. Per-document BM25 weights are precomputed
-at fit time, so scoring a batch of queries is a single sparse matrix product, just
-like the cosine models.
+- **BM25** — Okapi BM25, the classic probabilistic ranker used by search engines,
+  implemented **dependency-free** on a `CountVectorizer`. It *saturates* term
+  frequency and *penalises long documents*, so it ranks differently from cosine
+  TF-IDF. Its `k1`/`b` are **tuned on validation**.
+- **Pseudo-relevance feedback (`document_prf`)** — Rocchio query expansion: retrieve
+  once, assume the top-M are relevant, add their centroid to the query, retrieve
+  again. Pulls in related vocabulary the query never mentioned.
+- **Graded nDCG (`gnDCG`)** — a fairer metric that credits candidates sharing *more*
+  tags, reported next to the strict binary metrics.
+- **MMR diversity** — optional Maximal-Marginal-Relevance re-ranking at inference to
+  avoid near-duplicate recommendations (`recommend(..., diversity=λ)`).
+- **Ablation + error analysis** — leave-one-out contribution of each hybrid component,
+  and the hardest test queries surfaced for inspection.
+- **Interactive CLI** — `scripts/recommend_cli.py` for live demos.
+
+All of the above are lexical/latent (no neural embeddings) and run in CI and Docker.
 
 ## Project structure
 
@@ -73,9 +83,10 @@ Project_P3/
 │   ├── import_to_db.py                 # CSV → normalized SQLite (from Phase 2)
 │   ├── load_data.py                   # DB → Pandas (from Phase 2)
 │   ├── preprocess.py                  # technical text cleaning (from Phase 2)
-│   ├── recommender.py                 # NEW: models (incl. BM25), metrics, hybrid, inference
-│   ├── train_model.py                 # NEW: training pipeline stage (select, tune, eval, save, MLflow)
-│   └── make_predictions.py            # NEW: prediction pipeline stage (retrieve, save to DB)
+│   ├── recommender.py                 # NEW: models (BM25, PRF), metrics (graded), hybrid, MMR, inference
+│   ├── train_model.py                 # NEW: training stage (tune, select, ablation, error analysis, MLflow)
+│   ├── make_predictions.py            # NEW: prediction stage (retrieve, save to DB)
+│   └── recommend_cli.py               # NEW: interactive demo (by question id or free text; MMR)
 ├── train_pipeline.py                   # training pipeline (single command)
 ├── predict_pipeline.py                 # prediction pipeline (single command)
 ├── run_pipeline.py                     # both pipelines end-to-end
@@ -119,6 +130,15 @@ The prediction stage also accepts options when run directly:
 ```bash
 python scripts/make_predictions.py --top-k 10        # recommendations per query (default 10)
 python scripts/make_predictions.py --all             # predict for every question, not just the holdout
+```
+
+**Interactive demo (great for the presentation/video):**
+
+```bash
+# free-text query, with MMR diversity on:
+python scripts/recommend_cli.py --text "how to std::move a vector into a thread" --diversity 0.7
+# an existing question by id:
+python scripts/recommend_cli.py --question-id 79907170 --top-k 5
 ```
 
 ### The two pipelines

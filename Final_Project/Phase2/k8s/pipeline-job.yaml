@@ -1,9 +1,9 @@
 # Runs the containerized pipeline once inside a local Kubernetes (Minikube) cluster.
 #
 #   minikube start
-#   docker build -f "Phase 2/Project_P2/Dockerfile" -t so-recommender:latest .
+#   docker build -f "Phase2/Dockerfile" -t so-recommender:latest .
 #   minikube image load so-recommender:latest
-#   kubectl apply -f "Phase 2/Project_P2/k8s/pipeline-job.yaml"
+#   kubectl apply -f "Phase2/k8s/pipeline-job.yaml"
 #   kubectl wait --for=condition=complete job/ds-pipeline --timeout=600s
 #   kubectl logs job/ds-pipeline
 #

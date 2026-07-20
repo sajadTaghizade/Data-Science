@@ -38,7 +38,7 @@ The pipeline treats the recommender as a real retrieval problem rather than just
 ## Project structure
 
 ```text
-Project_P2/
+Phase2/
 ├── data/                              # Generated; excluded from Git
 │   ├── stackoverflow_questions.db
 │   ├── interim/questions_from_database.csv
@@ -68,7 +68,7 @@ Use Python 3.11+ and run the following from this directory:
 python -m pip install -r requirements.txt
 ```
 
-The pipeline reads the source data from `../../Phase 1/stackoverflow_questions.csv`. Do not move that file unless `SOURCE_CSV_PATH` in `scripts/database_connection.py` is updated too.
+The pipeline reads the source data from `../Phase1/stackoverflow_questions.csv`. Do not move that file unless `SOURCE_CSV_PATH` in `scripts/database_connection.py` is updated too.
 
 ## Scaling the dataset (optional)
 
@@ -78,7 +78,7 @@ and cloud environments block outbound access to `api.stackexchange.com`:
 
 ```bash
 pip install requests pandas
-cd "../../Phase 1"
+cd "../Phase1"
 # No API key needed — one run collects up to ~30k questions (the keyless daily quota):
 python crawl_stackoverflow.py --pages 300
 # Run it again another day to accumulate more; duplicates are skipped automatically:
@@ -89,7 +89,7 @@ python crawl_stackoverflow.py --pages 300 --proxy http://127.0.0.1:10808
 
 The crawler queries the `/search/advanced` endpoint by **tag** (`tagged="c++"`,
 `sort=creation`, `filter=withbody`) and **appends** to
-`Phase 1/stackoverflow_questions.csv` with the exact same column layout, so
+`Phase1/stackoverflow_questions.csv` with the exact same column layout, so
 nothing downstream needs to change — just re-run `python pipeline.py`. (The
 original scraper used a full-text `q="c++"` search, which only matches a few
 thousand questions; the `c++` tag covers ~800k, so crawling by tag is what
@@ -194,11 +194,12 @@ runner cannot build images) and capture the screenshots for the bonus.
 
 ### Docker (5%)
 
-Build from the **repository root** (so the source CSV in `Phase 1/` is in the
-build context) and run the pipeline inside the container:
+Build from the **`Final_Project/` directory** (so the source CSV in `Phase1/` is
+in the build context) and run the pipeline inside the container:
 
 ```bash
-docker build -f "Phase 2/Project_P2/Dockerfile" -t so-recommender .
+cd ..                                             # into Final_Project/
+docker build -f "Phase2/Dockerfile" -t so-recommender .
 docker run --rm so-recommender
 ```
 
@@ -211,10 +212,11 @@ as screenshots.
 Run the same image as a one-shot `Job` in a local cluster:
 
 ```bash
+cd ..                                             # into Final_Project/
 minikube start
-docker build -f "Phase 2/Project_P2/Dockerfile" -t so-recommender:latest .
+docker build -f "Phase2/Dockerfile" -t so-recommender:latest .
 minikube image load so-recommender:latest        # make the local image visible to the cluster
-kubectl apply -f "Phase 2/Project_P2/k8s/pipeline-job.yaml"
+kubectl apply -f "Phase2/k8s/pipeline-job.yaml"
 kubectl wait --for=condition=complete job/ds-pipeline --timeout=600s
 kubectl get pods                                  # screenshot: pod Completed
 kubectl logs job/ds-pipeline                      # screenshot: pipeline log

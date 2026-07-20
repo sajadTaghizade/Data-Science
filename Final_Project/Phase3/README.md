@@ -71,7 +71,7 @@ All of the above are lexical/latent (no neural embeddings) and run in CI and Doc
 ## Project structure
 
 ```text
-Project_P3/
+Phase3/
 ├── data/                              # Generated; excluded from Git
 │   ├── stackoverflow_questions.db     #   SQLite DB (incl. the recommendations table)
 │   ├── processed/preprocessed_questions.csv
@@ -108,7 +108,7 @@ Python 3.11+, from this directory:
 python -m pip install -r requirements.txt
 ```
 
-The pipeline reads the source data from `../../Phase 1/stackoverflow_questions.csv`.
+The pipeline reads the source data from `../Phase1/stackoverflow_questions.csv`.
 
 ## Run it
 

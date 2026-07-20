@@ -8,7 +8,7 @@ dataset was small — whereas the ``c++`` tag covers ~800k questions.
 
 The cloud/CI environment blocks outbound access to api.stackexchange.com, so run
 this **locally**. It reproduces the exact column layout of
-``Phase 1/stackoverflow_questions.csv`` so the rest of the Phase 2 pipeline keeps
+``Phase1/stackoverflow_questions.csv`` so the rest of the Phase 2 pipeline keeps
 working unchanged after you scale the data up.
 
 Works WITHOUT an API key

@@ -1,0 +1,35 @@
+name: Phase 3 Recommender CI
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  phase3-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Phase 3/Project_P3
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: Phase 3/Project_P3/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint (ruff)
+        run: python -m ruff check .
+
+      - name: Run tests (pytest)
+        run: python -m pytest -q
+
+      - name: Run full pipeline (train + predict)
+        run: python run_pipeline.py

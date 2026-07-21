@@ -2,6 +2,8 @@
 
 This project processes a crawled dataset of Stack Overflow C++ questions and prepares it for a semantic similar-question recommendation system. It completes Sections 1–3 of the Phase 2 brief: relational storage, leakage-safe modeling preparation, and a reproducible data pipeline.
 
+> **Dataset scale note.** The database, preprocessing, and pipeline here run on the **full 26,162-question dataset**. Phase 2's `feature_engineering.py` recommender is the **exploratory baseline** — its metrics/notebook were validated on the initial ~2.5k sample. The full, tuned recommender modelling on the 26k corpus (more models, BM25 tuning, cross-validated selection, MMR, MLflow) is delivered in **[Phase 3](../Phase3/README.md)**, which supersedes this baseline. (Refitting the character n-gram model on all 26k documents is memory-heavy; Phase 3 fits on the train/validation split and is the reference implementation.)
+
 ## Project decision
 
 The selected task is **semantic similar-question recommendation**. Title and body text are converted to TF-IDF vectors; cosine similarity then retrieves related historical questions.
@@ -188,9 +190,11 @@ tab for submission.
 
 Both paths below have been run and verified: the containerized pipeline and the
 Minikube `Job` each complete successfully and reproduce the **identical** metrics
-seen locally and in CI (`Hit@10 = 0.824`, `nDCG@10 = 0.361`) — confirming full
-reproducibility. Run them on a machine with Docker/Minikube installed (a CI/cloud
-runner cannot build images) and capture the screenshots for the bonus.
+seen locally — confirming full reproducibility. (On the initial ~2.5k sample the
+baseline reached `Hit@10 = 0.824`, `nDCG@10 = 0.361`; on the full 26k corpus the
+tuned recommender in **Phase 3** reaches `Hit@10 = 0.893`, `nDCG@10 = 0.559`.) Run
+these on a machine with Docker/Minikube installed (a CI/cloud runner cannot build
+images) and capture the screenshots for the bonus.
 
 ### Docker (5%)
 

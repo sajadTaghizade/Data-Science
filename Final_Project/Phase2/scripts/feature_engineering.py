@@ -359,8 +359,12 @@ def main() -> None:
     }
     baseline_df = pd.DataFrame(baseline_metrics).T
 
-    # Refit the chosen representation on ALL data for deployment.
-    final_models = fit_models(questions)
+    # Refit the chosen representation for deployment on train+validation. Fitting the
+    # character n-gram model on all 26k documents at once is memory-heavy; train+validation
+    # keeps the artefact tractable and matches the Phase 3 reference setup. The reported
+    # metrics above are unchanged — they come from the train-only fit evaluated on test.
+    deploy_corpus = pd.concat([train_df, val_df], ignore_index=True)
+    final_models = fit_models(deploy_corpus)
 
     for path in (FEATURES_PATH, ARTIFACT_PATH, METADATA_PATH):
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -380,11 +384,13 @@ def main() -> None:
     features.to_csv(FEATURES_PATH, index=False)
 
     artifact_questions_cols = ["question_id", "title", "tags", "creation_at"]
-    if "question_url" in questions.columns:
+    if "question_url" in deploy_corpus.columns:
         artifact_questions_cols.insert(2, "question_url")
+    # The stored candidate list must align row-for-row with the fitted models'
+    # matrices, so it uses the same train+validation corpus they were fit on.
     joblib.dump(
         {"models": models_to_dicts(final_models), "weights": best_weights,
-         "questions": questions[artifact_questions_cols].copy()},
+         "questions": deploy_corpus[artifact_questions_cols].copy()},
         ARTIFACT_PATH,
     )
     single_df.to_csv(SINGLE_METRICS_PATH)

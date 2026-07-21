@@ -152,8 +152,10 @@ MODEL_SPECS = [
      "analyzer": "word", "ngram_range": (1, 2), "min_df": 2, "max_df": 0.90,
      "max_features": 60000, "token_pattern": TOKEN_PATTERN},
     {"name": "char_wb_tfidf", "field": "document_clean",
-     "analyzer": "char_wb", "ngram_range": (3, 5), "min_df": 2, "max_df": 0.95,
-     "max_features": 50000},
+     # 3-4 char n-grams (not 3-5) keep the character TF-IDF fit fast and
+     # memory-bounded on the full 26k corpus of long documents.
+     "analyzer": "char_wb", "ngram_range": (3, 4), "min_df": 3, "max_df": 0.95,
+     "max_features": 40000},
 ]
 # LSA (latent semantic analysis): TruncatedSVD over a document TF-IDF gives a
 # dense, semantically-aware representation that captures synonymy/co-occurrence

@@ -30,7 +30,7 @@ Final_Project/
 
 | Phase | What it does | Key deliverable |
 | --- | --- | --- |
-| **[Phase 1](Phase1/README.md)** | Collects ~2,500 C++ questions from the Stack Exchange API with a resumable crawler. | `stackoverflow_questions.csv` |
+| **[Phase 1](Phase1/README.md)** | Collects ~26,000 C++ questions from the Stack Exchange API with a resumable crawler. | `stackoverflow_questions.csv` |
 | **[Phase 2](Phase2/README.md)** | Loads the data into a normalized **SQLite** database, does EDA + leakage-safe text cleaning + feature engineering, wraps it in a reproducible **pipeline**, with **CI**, **Docker**, and **Kubernetes**. | Clean pipeline + hybrid recommender baseline |
 | **[Phase 3](Phase3/README.md)** | Compares several recommender **models**, selects the best by cross-validation, evaluates it properly, and wires it into automated **training** and **prediction** pipelines that **save recommendations back to the database**. Adds **MLflow** tracking. | `best_recommender.joblib` + `recommendations` table |
 
@@ -62,16 +62,17 @@ python crawl_stackoverflow.py --pages 300
 > automatically (resolved relative to each phase). Keep the three folders together
 > and everything just works — no path configuration needed.
 
-## Headline results (Phase 3, held-out test set)
+## Headline results (Phase 3, held-out test set — 26,162-question dataset)
 
 The selected **hybrid** recommender lands a relevant neighbour in the top-10 for
-about **84%** of unseen questions — roughly **4×** the random/popularity baselines.
+about **89%** of unseen questions (95.5% coverage) — far above the random/popularity
+baselines.
 
 | | Hit@10 | MRR@10 | nDCG@10 |
 | --- | --- | --- | --- |
-| **hybrid model** | **0.839** | **0.613** | **0.385** |
-| popularity baseline | 0.133 | 0.048 | 0.021 |
-| random baseline | 0.201 | 0.073 | 0.024 |
+| **hybrid model** | **0.893** | **0.710** | **0.559** |
+| popularity baseline | 0.105 | 0.056 | 0.019 |
+| random baseline | 0.376 | 0.138 | 0.059 |
 
 ## Reproducibility & quality
 

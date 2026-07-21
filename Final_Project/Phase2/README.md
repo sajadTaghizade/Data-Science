@@ -9,7 +9,7 @@ The selected task is **semantic similar-question recommendation**. Title and bod
 This choice is better supported by the data than the alternatives:
 
 - Difficulty prediction has no genuine difficulty label.
-- Auto-tagging has 1,691 unique tags for 2,500 questions, creating a sparse long-tailed multi-label problem.
+- Auto-tagging has 5,572 unique tags for 26,162 questions, creating a sparse long-tailed multi-label problem.
 - Recommendation directly uses the rich text available for every question.
 
 ## Phase 2 coverage

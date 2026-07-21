@@ -7,7 +7,7 @@
 
 ## ۱) این فاز دنباله‌ی چیست؟
 
-در **فاز ۱** داده‌ها را از StackOverflow جمع کردیم (۲٬۵۰۰ سؤال ++C).
+در **فاز ۱** داده‌ها را از StackOverflow جمع کردیم (۲۶٬۱۶۲ سؤال ++C).
 در **فاز ۲** یک **سیستم توصیه‌گر سؤال مشابه** ساختیم: متن هر سؤال را به بردار عددی
 (TF-IDF) تبدیل کردیم و با «شباهت کسینوسی» نزدیک‌ترین سؤال‌ها را پیدا کردیم. دیتابیس،
 پاک‌سازی متن و مهندسی ویژگی هم آماده شد.
@@ -54,7 +54,7 @@
 
 **چرا بر اساس زمان؟** چون در واقعیت برای یک سؤال **جدید**، سؤال‌های **قدیمی‌تر** را پیشنهاد
 می‌دهیم. تقسیم زمانی جلوی «نشت اطلاعات از آینده به گذشته» را می‌گیرد و عدد ارزیابی را
-واقعی نگه می‌دارد. (train=۱۷۵۰، val=۳۷۵، test=۳۷۵)
+واقعی نگه می‌دارد. (train=۱۸٬۳۱۳، val=۳٬۰۰۰، test=۳٬۰۰۰)
 
 ### چطور بهترین را انتخاب کردیم؟ (cross-validation)
 
@@ -67,13 +67,13 @@
 
 | مدل | nDCG@10 (میانگین ± انحراف) |
 | --- | --- |
-| **hybrid** ✅ | **۰٫۳۸۳ ± ۰٫۰۲۰** |
-| char_wb_tfidf | ۰٫۳۶۴ ± ۰٫۰۲۷ |
-| document_word_tfidf | ۰٫۳۳۵ ± ۰٫۰۲۸ |
-| document_prf | ۰٫۳۳۵ ± ۰٫۰۲۷ |
-| bm25_document (تنظیم‌شده) | ۰٫۳۰۱ ± ۰٫۰۳۰ |
-| lsa_document | ۰٫۲۸۶ ± ۰٫۰۳۰ |
-| title_word_tfidf | ۰٫۱۶۹ ± ۰٫۰۱۹ |
+| **hybrid** ✅ | **۰٫۷۵۹ ± ۰٫۰۱۱** |
+| char_wb_tfidf | ۰٫۷۳۹ ± ۰٫۰۱۱ |
+| bm25_document (تنظیم‌شده) | ۰٫۷۲۶ ± ۰٫۰۱۱ |
+| lsa_document | ۰٫۷۰۵ ± ۰٫۰۱۲ |
+| document_prf | ۰٫۶۸۱ ± ۰٫۰۱۱ |
+| document_word_tfidf | ۰٫۶۷۶ ± ۰٫۰۱۱ |
+| title_word_tfidf | ۰٫۳۷۶ ± ۰٫۰۰۷ |
 
 **مدل هیبرید برنده شد.** یعنی ترکیب همه‌ی نمایش‌ها، از هر مدل تکی بهتر است. انحراف‌معیار
 کوچک نشان می‌دهد این ترتیب پایدار است. (۷ کاندید داریم: ۶ مدل تکی + هیبرید.)
@@ -104,13 +104,13 @@
 
 | | Hit@10 | MRR@10 | nDCG@10 |
 | --- | --- | --- | --- |
-| **مدل هیبرید** | **۰٫۸۳۹** | **۰٫۶۱۳** | **۰٫۳۸۵** |
-| بیس‌لاین محبوبیت | ۰٫۱۳۳ | ۰٫۰۴۸ | ۰٫۰۲۱ |
-| بیس‌لاین تصادفی | ۰٫۲۰۱ | ۰٫۰۷۳ | ۰٫۰۲۴ |
+| **مدل هیبرید** | **۰٫۸۹۳** | **۰٫۷۱۰** | **۰٫۵۵۹** |
+| بیس‌لاین محبوبیت | ۰٫۱۰۵ | ۰٫۰۵۶ | ۰٫۰۱۹ |
+| بیس‌لاین تصادفی | ۰٫۳۷۶ | ۰٫۱۳۸ | ۰٫۰۵۹ |
 
-یعنی برای حدود **۸۴٪** از سؤال‌های دیده‌نشده، حداقل یک سؤال مرتبط در ۱۰ نتیجه‌ی اول هست —
-حدود **۴ برابر** بیس‌لاین تصادفی. پس مدل واقعاً «شباهت موضوعی» را یاد گرفته، نه فقط
-سؤال‌های محبوب را نشان دادن.
+یعنی برای حدود **۸۹٪** از سؤال‌های دیده‌نشده، حداقل یک سؤال مرتبط در ۱۰ نتیجه‌ی اول هست
+(پوشش ۹۵٫۵٪) — بسیار بالاتر از بیس‌لاین‌ها. پس مدل واقعاً «شباهت موضوعی» را یاد گرفته، نه
+فقط سؤال‌های محبوب را نشان دادن. (Hit@5 = ۰٫۸۳۶ و Hit@20 = ۰٫۹۳۱)
 
 ---
 
@@ -149,7 +149,7 @@
 | `model_name` | نام مدل |
 | `generated_at` | زمان تولید (UTC) |
 
-در اجرای ما **۳٬۷۵۰ توصیه** (۳۷۵ سؤال × ۱۰) ذخیره شد. یک کپی CSV هم در
+در اجرای ما **۳۰٬۰۰۰ توصیه** (۳٬۰۰۰ سؤال × ۱۰) ذخیره شد. یک کپی CSV هم در
 `data/reports/recommendations.csv` نوشته می‌شود.
 
 ---
@@ -186,9 +186,9 @@ mlflow ui --backend-store-uri mlruns
 5. **Ablation + تحلیل خطا**: سهم هر مدل در هیبرید (با حذف تک‌به‌تک) و سخت‌ترین سؤال‌های تست
    برای بررسی محدودیت‌ها.
 
-**نتیجه‌ی این بهبودها:** عملکرد روی تست بالا رفت — Hit@10 از ۰٫۸۲۷ به **۰٫۸۳۹**، MRR@10 از
-۰٫۵۷۶ به **۰٫۶۱۳**، و nDCG@10 از ۰٫۳۵۹ به **۰٫۳۸۵**. یافته‌ی ablation: مدلِ **کاراکتری**
-بیشترین سهم را دارد.
+**نتیجه‌ی این بهبودها + دیتای بزرگ‌تر (۲۶ هزار):** عملکرد روی تست خیلی بالا رفت — Hit@10 به
+**۰٫۸۹۳**، MRR@10 به **۰٫۷۱۰**، و nDCG@10 به **۰٫۵۵۹** رسید. یافته‌ی ablation: مدلِ **کاراکتری**
+بیشترین سهم را دارد و LSA/BM25 هم سهم معناداری دارند.
 
 **دموی تعاملی:** با `scripts/recommend_cli.py` می‌توان زنده توصیه گرفت (برای ویدیو عالی است):
 
@@ -237,7 +237,7 @@ python -m ruff check .
 بیس‌لاین‌هاست.
 
 **محدودیت‌ها:** برچسب «مرتبط بودن» ضعیف است (اشتراک تگ)، پس به سؤال‌هایی که معنی نزدیک
-ولی کلمات متفاوت دارند کم‌بها می‌دهد؛ داده ۲٬۵۰۰ سؤال است؛ و مدل‌ها لغوی/پنهان‌اند (بدون
+ولی کلمات متفاوت دارند کم‌بها می‌دهد؛ داده ۲۶٬۱۶۲ سؤال است؛ و مدل‌ها لغوی/پنهان‌اند (بدون
 شبکه‌ی عصبی بزرگ) که عمداً برای بازتولیدپذیری انتخاب شد.
 
 **کارهای آینده:** افزودن یک مدل امبدینگ عصبی به هیبرید، بزرگ‌تر کردن داده با کرالر، جمع‌آوری
@@ -252,12 +252,12 @@ Phase 3 turns the Phase 2 similar-question recommender into a full, automated ML
 system. Seven candidates (title/document/char TF-IDF, LSA, a dependency-free
 **BM25**, a **pseudo-relevance-feedback** model, and a **hybrid**) are compared under
 a temporal train/validation/test split and selected by **cross-validated nDCG@10**;
-the hybrid wins (0.383). On the held-out test set it reaches **Hit@10 = 0.839 /
-MRR@10 = 0.613 / nDCG@10 = 0.385**, about **4×** the random baseline. Enhancements
-(all no-embedding, reproducible): **BM25 tuning**, **PRF**, a **randomised hybrid-weight
-search**, **graded nDCG**, **MMR diversity**, and **ablation + error analysis**. A
-**training pipeline** fits and saves the model; a separate **prediction pipeline**
-loads it, retrieves top-10 similar questions for unseen questions, and **saves 3,750
-recommendations into a `recommendations` table** in SQLite. **MLflow** logs every
-run. Everything runs with `python run_pipeline.py`, is covered by 30 unit tests, and
-passes `ruff`.
+the hybrid wins (0.759). On the held-out test set (26,162-question dataset) it reaches
+**Hit@10 = 0.893 / MRR@10 = 0.710 / nDCG@10 = 0.559** at 95.5% coverage, far above the
+random/popularity baselines. Enhancements (all no-embedding, reproducible): **BM25
+tuning**, **PRF**, a **randomised hybrid-weight search**, **graded nDCG**, **MMR
+diversity**, and **ablation + error analysis**. A **training pipeline** fits and saves
+the model; a separate **prediction pipeline** loads it, retrieves top-10 similar
+questions for unseen questions, and **saves 30,000 recommendations into a
+`recommendations` table** in SQLite. **MLflow** logs every run. Everything runs with
+`python run_pipeline.py`, is covered by 30 unit tests, and passes `ruff`.

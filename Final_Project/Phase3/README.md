@@ -24,16 +24,18 @@ recommendations are what we save back to the database.
 | 4. MLflow model management (bonus) | Every training run logs params, metrics, and artefacts (model + report) to a local `mlruns/` store; browse with the MLflow UI. |
 | 5. Final presentation video | Add the Google Drive link in `video_link.txt` (or here) at submission time. |
 
-## Results (2,500-question dataset)
+## Results (26,162-question dataset)
+
+Split (temporal): **train = 18,313**, validation = 3,000, test = 3,000.
 
 **Section 1 — model selection (cross-validated nDCG@10 on validation):**
 
 | Model | CV nDCG@10 | | Model | CV nDCG@10 |
 | --- | --- | --- | --- | --- |
-| **hybrid** ✅ | **0.383 ± 0.020** | | bm25_document (tuned) | 0.301 ± 0.030 |
-| char_wb_tfidf | 0.364 ± 0.027 | | lsa_document | 0.286 ± 0.030 |
-| document_word_tfidf | 0.335 ± 0.028 | | title_word_tfidf | 0.169 ± 0.019 |
-| document_prf | 0.335 ± 0.027 | | | |
+| **hybrid** ✅ | **0.759 ± 0.011** | | lsa_document | 0.705 ± 0.012 |
+| char_wb_tfidf | 0.739 ± 0.011 | | document_prf | 0.681 ± 0.011 |
+| bm25_document (tuned) | 0.726 ± 0.011 | | document_word_tfidf | 0.676 ± 0.011 |
+| | | | title_word_tfidf | 0.376 ± 0.007 |
 
 The **hybrid** blend wins; the **character n-gram** model is the strongest single
 component (see the ablation), while BM25, LSA, and PRF add complementary signal.
@@ -42,12 +44,13 @@ component (see the ablation), while BM25, LSA, and PRF add complementary signal.
 
 | | Hit@10 | MRR@10 | nDCG@10 |
 | --- | --- | --- | --- |
-| **hybrid model** | **0.839** | **0.613** | **0.385** |
-| popularity baseline | 0.133 | 0.048 | 0.021 |
-| random baseline | 0.201 | 0.073 | 0.024 |
+| **hybrid model** | **0.893** | **0.710** | **0.559** |
+| popularity baseline | 0.105 | 0.056 | 0.019 |
+| random baseline | 0.376 | 0.138 | 0.059 |
 
-The recommender lands a relevant neighbour in the top-10 for ~**84%** of unseen
-questions — about **4×** the random baseline.
+The recommender lands a relevant neighbour in the top-10 for ~**89%** of unseen
+questions (95.5% coverage) — about **2.4×** the random baseline and far above
+popularity. (Hit@5 = 0.836, Hit@20 = 0.931.)
 
 ## Models and enhancements (no embeddings, fully reproducible)
 

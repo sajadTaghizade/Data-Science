@@ -31,5 +31,12 @@ jobs:
       - name: Run tests (pytest)
         run: python -m pytest -q
 
-      - name: Run full pipeline (train + predict)
-        run: python run_pipeline.py
+      # The model stack is exercised end-to-end by the unit tests (on synthetic data).
+      # Here we verify the real data pipeline's ingest + preprocessing on the full
+      # 26k dataset. Full model training/prediction (~15 min on 26k) is run locally,
+      # not in CI, to keep feedback fast.
+      - name: Verify data pipeline (build DB + preprocess)
+        run: |
+          python scripts/import_to_db.py
+          python scripts/load_data.py
+          python scripts/preprocess.py

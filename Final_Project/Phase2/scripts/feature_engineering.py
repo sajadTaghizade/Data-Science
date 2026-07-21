@@ -111,12 +111,18 @@ def relevant_indices_for_query(query_tags: list[str], candidate_tags: list[set[s
     return {i for i, tags in enumerate(candidate_tags) if query_secondary & tags}
 
 
-def evaluate_rankings(rankings, query_tag_lists, candidate_tag_sets, k_values=K_VALUES) -> dict:
-    relevant_sets = [relevant_indices_for_query(tags, candidate_tag_sets) for tags in query_tag_lists]
+def evaluate_rankings(rankings, query_tag_lists, candidate_tag_sets, k_values=K_VALUES, relevant_sets=None) -> dict:
+    # Relevance is fixed for a given query set + candidate pool, so it can be
+    # precomputed once and reused across every hybrid-weight combination — this
+    # keeps the weight search tractable when the corpus is scaled to tens of
+    # thousands of questions.
+    if relevant_sets is None:
+        relevant_sets = [relevant_indices_for_query(tags, candidate_tag_sets) for tags in query_tag_lists]
+    total = len(relevant_sets)
     valid = [(ranked, relevant) for ranked, relevant in zip(rankings, relevant_sets, strict=True) if relevant]
     results = {
         "evaluated_queries": len(valid),
-        "coverage": len(valid) / len(query_tag_lists) if len(query_tag_lists) else 0.0,
+        "coverage": len(valid) / total if total else 0.0,
     }
     for k in k_values:
         results[f"Hit@{k}"] = np.mean([hit_at_k(r, rel, k) for r, rel in valid]) if valid else np.nan
@@ -318,10 +324,15 @@ def main() -> None:
     train_secondary = [secondary_tags(tags) for tags in train_df["tag_list"]]
     models = fit_models(train_df)
 
+    # Precompute relevance once per query set (reused across all models and every
+    # hybrid-weight combination) so the search stays fast on a large corpus.
+    val_relevant = [relevant_indices_for_query(tags, train_secondary) for tags in val_df["tag_list"]]
+    test_relevant = [relevant_indices_for_query(tags, train_secondary) for tags in test_df["tag_list"]]
+
     # Single-model validation metrics.
     single_rows = []
     for model in models:
-        metrics = evaluate_rankings(rank_single(model, val_df), val_df["tag_list"], train_secondary)
+        metrics = evaluate_rankings(rank_single(model, val_df), None, None, relevant_sets=val_relevant)
         metrics["model"] = model.name
         single_rows.append(metrics)
     single_df = pd.DataFrame(single_rows).set_index("model").sort_values("nDCG@10", ascending=False)
@@ -329,20 +340,21 @@ def main() -> None:
     # Hybrid weight search on validation only.
     hybrid_rows = []
     for weights in weight_grid():
-        metrics = evaluate_rankings(rank_hybrid(models, val_df, weights), val_df["tag_list"], train_secondary)
+        metrics = evaluate_rankings(rank_hybrid(models, val_df, weights), None, None, relevant_sets=val_relevant)
         metrics.update(weights)
         hybrid_rows.append(metrics)
     hybrid_df = pd.DataFrame(hybrid_rows).sort_values(["nDCG@10", "MAP@10", "MRR@10"], ascending=False)
     best_weights = {k: float(hybrid_df.iloc[0][k]) for k in WEIGHT_KEYS}
 
     # Final test evaluation (once); candidate corpus = train only.
-    test_metrics = evaluate_rankings(rank_hybrid(models, test_df, best_weights), test_df["tag_list"], train_secondary)
+    test_rankings = rank_hybrid(models, test_df, best_weights)
+    test_metrics = evaluate_rankings(test_rankings, None, None, relevant_sets=test_relevant)
 
     # Baselines for context: prove the model beats trivial rankings on the same test set.
     n_test, n_train = len(test_df), len(train_df)
     baseline_metrics = {
-        "random": evaluate_rankings(rank_random(n_test, n_train, 50), test_df["tag_list"], train_secondary),
-        "popularity": evaluate_rankings(rank_popularity(train_df, n_test, 50), test_df["tag_list"], train_secondary),
+        "random": evaluate_rankings(rank_random(n_test, n_train, 50), None, None, relevant_sets=test_relevant),
+        "popularity": evaluate_rankings(rank_popularity(train_df, n_test, 50), None, None, relevant_sets=test_relevant),
         "hybrid_model": test_metrics,
     }
     baseline_df = pd.DataFrame(baseline_metrics).T

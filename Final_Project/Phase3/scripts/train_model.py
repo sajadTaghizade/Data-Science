@@ -82,17 +82,20 @@ def _fold_assignments(n_queries: int, n_folds: int, seed: int = R.RANDOM_STATE) 
 
 
 def cross_val_primary(score_matrix: np.ndarray, val_df: pd.DataFrame, candidate_secondary,
-                      folds: list[np.ndarray], metric: str = R.PRIMARY_METRIC) -> tuple[float, float]:
+                      folds: list[np.ndarray], metric: str = R.PRIMARY_METRIC,
+                      grade_maps=None) -> tuple[float, float]:
     """Mean and std of ``metric`` over query folds, given a precomputed score matrix.
 
     Only the query set is folded; the candidate pool is fixed, so this measures
     how stable the ranking quality is across different sets of unseen queries.
+    ``grade_maps`` (precomputed relevance) is reused across folds for speed at scale.
     """
-    tag_lists = val_df["tag_list"].tolist()
+    if grade_maps is None:
+        grade_maps = R.compute_grade_maps(val_df["tag_list"].tolist(), candidate_secondary)
     fold_scores = []
     for fold in folds:
         rankings = R.rank_from_scores(score_matrix[fold], TOP_K_EVAL)
-        metrics = R.evaluate_rankings(rankings, [tag_lists[i] for i in fold], candidate_secondary)
+        metrics = R.evaluate_rankings(rankings, None, None, grade_maps=[grade_maps[i] for i in fold])
         if not np.isnan(metrics[metric]):
             fold_scores.append(metrics[metric])
     return (float(np.mean(fold_scores)), float(np.std(fold_scores))) if fold_scores else (float("nan"), float("nan"))
@@ -132,11 +135,11 @@ def _mlflow_log(params: dict, metrics: dict, artifact_paths: list) -> str | None
 # --------------------------------------------------------------------------- #
 # Ablation study and error analysis
 # --------------------------------------------------------------------------- #
-def leave_one_out_ablation(val_norm, best_weights, val_df, candidate_secondary, folds):
+def leave_one_out_ablation(val_norm, best_weights, val_df, candidate_secondary, folds, grade_maps=None):
     """Each model's contribution to the hybrid: the CV nDCG@10 drop when it is removed."""
     active = [name for name, weight in best_weights.items() if weight > 0]
     full = sum(best_weights[name] * val_norm[name] for name in active)
-    full_cv, _ = cross_val_primary(full, val_df, candidate_secondary, folds)
+    full_cv, _ = cross_val_primary(full, val_df, candidate_secondary, folds, grade_maps=grade_maps)
     rows = []
     for name in active:
         remaining = [other for other in active if other != name]
@@ -145,22 +148,24 @@ def leave_one_out_ablation(val_norm, best_weights, val_df, candidate_secondary, 
             loo_cv = float("nan")
         else:
             combined = sum((best_weights[other] / total) * val_norm[other] for other in remaining)
-            loo_cv, _ = cross_val_primary(combined, val_df, candidate_secondary, folds)
+            loo_cv, _ = cross_val_primary(combined, val_df, candidate_secondary, folds, grade_maps=grade_maps)
         rows.append({"removed_model": name, "hybrid_without_it_cv_nDCG@10": loo_cv,
                      "contribution": full_cv - loo_cv})
     table = pd.DataFrame(rows).sort_values("contribution", ascending=False).reset_index(drop=True)
     return full_cv, table
 
 
-def error_analysis(test_scores, test_df, train_df, candidate_secondary, top_n_worst=15):
+def error_analysis(test_scores, test_df, train_df, candidate_secondary, top_n_worst=15, grade_maps=None):
     """Return the hardest test queries (relevant candidates exist, yet nDCG@10 is lowest)."""
     rankings = R.rank_from_scores(test_scores, TOP_K_EVAL)
     train_titles = train_df["title"].astype(str).to_numpy() if "title" in train_df.columns else None
     query_titles = test_df["title"].astype(str).to_numpy() if "title" in test_df.columns else [""] * len(test_df)
     query_tags = test_df["tag_list"].tolist()
+    if grade_maps is None:
+        grade_maps = R.compute_grade_maps(query_tags, candidate_secondary)
     rows = []
     for i, ranked in enumerate(rankings):
-        grades = R.relevance_grades_for_query(query_tags[i], candidate_secondary)
+        grades = grade_maps[i]
         if not grades:
             continue  # not evaluable (no non-global tag), so it cannot be a scored "error"
         rows.append({
@@ -187,9 +192,12 @@ def main() -> None:
     test_df = R.sample_queries(test_df)
     train_secondary = [secondary_tags(tags) for tags in train_df["tag_list"]]
     logger.info("Split (temporal): train=%d  val=%d  test=%d", len(train_df), len(val_df), len(test_df))
+    # Precompute relevance for validation once (reused by BM25 tuning, model selection,
+    # the hybrid search, and the ablation) — this is what keeps a 26k-corpus run fast.
+    val_grade_maps = R.compute_grade_maps(val_df["tag_list"].tolist(), train_secondary)
 
     # 2. Tune BM25 (k1, b) on validation, then fit all candidates on TRAIN only
-    best_bm25_params, bm25_tuning_table = R.tune_bm25(train_df, val_df, train_secondary)
+    best_bm25_params, bm25_tuning_table = R.tune_bm25(train_df, val_df, train_secondary, grade_maps=val_grade_maps)
     logger.info("Tuned BM25: k1=%.1f b=%.2f", best_bm25_params["k1"], best_bm25_params["b"])
     models = R.fit_candidate_models(train_df, bm25_params=best_bm25_params)
 
@@ -199,9 +207,9 @@ def main() -> None:
     folds = _fold_assignments(len(val_df), CV_FOLDS)
 
     def _selection_row(name, kind, score_matrix):
-        cv_mean, cv_std = cross_val_primary(score_matrix, val_df, train_secondary, folds)
+        cv_mean, cv_std = cross_val_primary(score_matrix, val_df, train_secondary, folds, grade_maps=val_grade_maps)
         full = R.evaluate_rankings(R.rank_from_scores(score_matrix, TOP_K_EVAL),
-                                   val_df["tag_list"], train_secondary)
+                                   None, None, grade_maps=val_grade_maps)
         return {"model": name, "type": kind, "cv_nDCG@10_mean": cv_mean, "cv_nDCG@10_std": cv_std,
                 "val_Hit@10": full["Hit@10"], "val_MRR@10": full["MRR@10"],
                 "val_nDCG@10": full["nDCG@10"], "val_gnDCG@10": full["gnDCG@10"]}
@@ -212,7 +220,7 @@ def main() -> None:
     hybrid_rows = []
     for weights in R.sample_hybrid_weights(R.CANDIDATE_MODEL_NAMES):
         combined = sum(weights[name] * val_norm[name] for name in weights)
-        cv_mean, cv_std = cross_val_primary(combined, val_df, train_secondary, folds)
+        cv_mean, cv_std = cross_val_primary(combined, val_df, train_secondary, folds, grade_maps=val_grade_maps)
         row = {"cv_nDCG@10_mean": cv_mean, "cv_nDCG@10_std": cv_std}
         row.update({name: round(weight, 4) for name, weight in weights.items()})
         hybrid_rows.append(row)
@@ -229,18 +237,19 @@ def main() -> None:
     logger.info("Selected best model: %s", best_model_name)
 
     # 5. Evaluate the SELECTED model on TEST once + baselines ----------------
+    test_grade_maps = R.compute_grade_maps(test_df["tag_list"].tolist(), train_secondary)
     if best_model_name == "hybrid":
         test_scores = R.combine_scores(models, test_df, best_weights)
     else:
         test_scores = next(m for m in models if m.name == best_model_name).score(test_df)
     test_metrics = R.evaluate_rankings(R.rank_from_scores(test_scores, TOP_K_EVAL),
-                                       test_df["tag_list"], train_secondary)
+                                       None, None, grade_maps=test_grade_maps)
 
     baseline_metrics = {
         "random": R.evaluate_rankings(R.rank_random(len(test_df), len(train_df), TOP_K_EVAL),
-                                      test_df["tag_list"], train_secondary),
+                                      None, None, grade_maps=test_grade_maps),
         "popularity": R.evaluate_rankings(R.rank_popularity(train_df, len(test_df), TOP_K_EVAL),
-                                          test_df["tag_list"], train_secondary),
+                                          None, None, grade_maps=test_grade_maps),
         f"selected_model[{best_model_name}]": test_metrics,
     }
     baseline_df = pd.DataFrame(baseline_metrics).T
@@ -249,9 +258,10 @@ def main() -> None:
                 test_metrics["nDCG@10"], test_metrics["gnDCG@10"])
 
     # 5b. Ablation study + error analysis -----------------------------------
-    full_hybrid_cv, ablation_df = leave_one_out_ablation(val_norm, best_weights, val_df, train_secondary, folds)
+    full_hybrid_cv, ablation_df = leave_one_out_ablation(
+        val_norm, best_weights, val_df, train_secondary, folds, grade_maps=val_grade_maps)
     logger.info("Hybrid ablation (contribution to CV nDCG@10):\n%s", ablation_df.round(4).to_string(index=False))
-    worst_queries_df = error_analysis(test_scores, test_df, train_df, train_secondary)
+    worst_queries_df = error_analysis(test_scores, test_df, train_df, train_secondary, grade_maps=test_grade_maps)
 
     # 6. Refit the chosen model on TRAIN+VAL for deployment ------------------
     deploy_corpus = pd.concat([train_df, val_df], ignore_index=True)

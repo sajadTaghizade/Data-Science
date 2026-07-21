@@ -8,7 +8,7 @@ questions from Stack Overflow**, gathered via the public Stack Exchange API.
 | File | Purpose |
 | --- | --- |
 | `crawl_stackoverflow.py` | Resumable crawler for the Stack Exchange `/search/advanced` API. |
-| `stackoverflow_questions.csv` | The collected dataset (~2,500 C++ questions) used by Phase 2 & 3. |
+| `stackoverflow_questions.csv` | The collected dataset (~26,162 C++ questions) used by Phase 2 & 3. |
 | `P1_brief.pdf`, `P1_brief_datascience.pdf` | The original assignment briefs (reference). |
 
 ## The dataset

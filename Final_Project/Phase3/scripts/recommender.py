@@ -145,17 +145,30 @@ def ndcg_graded_at_k(ranked: list[int], grades: dict[int, int], k: int) -> float
     return dcg / idcg if idcg else 0.0
 
 
-def evaluate_rankings(rankings, query_tag_lists, candidate_tag_sets, k_values=K_VALUES) -> dict:
+def compute_grade_maps(query_tag_lists, candidate_tag_sets) -> list[dict[int, int]]:
+    """Precompute each query's relevance-grade map against a fixed candidate pool.
+
+    Computing this once and reusing it (rather than recomputing inside every
+    cross-validation fold and every candidate model) keeps evaluation fast when the
+    candidate pool is large (tens of thousands of questions).
+    """
+    return [relevance_grades_for_query(tags, candidate_tag_sets) for tags in query_tag_lists]
+
+
+def evaluate_rankings(rankings, query_tag_lists, candidate_tag_sets, k_values=K_VALUES, grade_maps=None) -> dict:
     """Average the ranking metrics over every query that has at least one relevant candidate.
 
     Reports both the strict **binary** metrics (Hit/Recall/MAP/MRR/nDCG) and a fairer
-    **graded** nDCG (``gnDCG@k``) that credits candidates sharing more tags.
+    **graded** nDCG (``gnDCG@k``) that credits candidates sharing more tags. Pass
+    ``grade_maps`` (from :func:`compute_grade_maps`) to skip recomputing relevance.
     """
-    grade_maps = [relevance_grades_for_query(tags, candidate_tag_sets) for tags in query_tag_lists]
+    if grade_maps is None:
+        grade_maps = compute_grade_maps(query_tag_lists, candidate_tag_sets)
+    total = len(grade_maps)
     valid = [(ranked, grades) for ranked, grades in zip(rankings, grade_maps, strict=True) if grades]
     results = {
         "evaluated_queries": len(valid),
-        "coverage": len(valid) / len(query_tag_lists) if len(query_tag_lists) else 0.0,
+        "coverage": len(valid) / total if total else 0.0,
     }
     for k in k_values:
         results[f"Hit@{k}"] = np.mean([hit_at_k(r, set(g), k) for r, g in valid]) if valid else np.nan
@@ -377,13 +390,15 @@ def fit_candidate_models(corpus_df: pd.DataFrame, bm25_params: dict | None = Non
 
 
 def tune_bm25(train_df: pd.DataFrame, val_df: pd.DataFrame, candidate_secondary,
-              metric: str = PRIMARY_METRIC) -> tuple[dict, pd.DataFrame]:
+              metric: str = PRIMARY_METRIC, grade_maps=None) -> tuple[dict, pd.DataFrame]:
     """Grid-search BM25's ``k1`` and ``b`` on validation; return the best params + the search table."""
+    if grade_maps is None:
+        grade_maps = compute_grade_maps(val_df["tag_list"].tolist(), candidate_secondary)
     rows = []
     for k1 in (1.0, 1.5, 2.0):
         for b in (0.5, 0.75, 0.9):
             model = BM25Model("bm25_document", "document_clean", k1=k1, b=b).fit(train_df)
-            metrics = evaluate_rankings(rank_single(model, val_df), val_df["tag_list"], candidate_secondary)
+            metrics = evaluate_rankings(rank_single(model, val_df), None, None, grade_maps=grade_maps)
             rows.append({"k1": k1, "b": b, metric: metrics[metric]})
     table = pd.DataFrame(rows).sort_values(metric, ascending=False).reset_index(drop=True)
     best = {"k1": float(table.iloc[0]["k1"]), "b": float(table.iloc[0]["b"])}

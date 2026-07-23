@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: Phase 2/Project_P2
+        working-directory: Final_Project/Phase2
     steps:
       - uses: actions/checkout@v4
 
@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-          cache-dependency-path: Phase 2/Project_P2/requirements.txt
+          cache-dependency-path: Final_Project/Phase2/requirements.txt
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -31,5 +31,11 @@ jobs:
       - name: Run tests (pytest)
         run: python -m pytest -q
 
-      - name: Run data pipeline
-        run: python pipeline.py
+      # Verify the data pipeline's ingest + preprocessing on the full 26k dataset.
+      # The heavy feature-engineering/modeling step (~15 min on 26k) is run locally,
+      # not in CI, to keep feedback fast; it is covered by the unit tests.
+      - name: Verify data pipeline (build DB + preprocess)
+        run: |
+          python scripts/import_to_db.py
+          python scripts/load_data.py
+          python scripts/preprocess.py

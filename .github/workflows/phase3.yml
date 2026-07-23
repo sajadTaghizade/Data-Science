@@ -1,0 +1,42 @@
+name: Phase 3 Recommender CI
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  phase3-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Final_Project/Phase3
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: Final_Project/Phase3/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint (ruff)
+        run: python -m ruff check .
+
+      - name: Run tests (pytest)
+        run: python -m pytest -q
+
+      # The model stack is exercised end-to-end by the unit tests (on synthetic data).
+      # Here we verify the real data pipeline's ingest + preprocessing on the full
+      # 26k dataset. Full model training/prediction (~15 min on 26k) is run locally,
+      # not in CI, to keep feedback fast.
+      - name: Verify data pipeline (build DB + preprocess)
+        run: |
+          python scripts/import_to_db.py
+          python scripts/load_data.py
+          python scripts/preprocess.py

@@ -6,5 +6,6 @@ scipy>=1.11,<2.0
 joblib>=1.3,<2.0
 matplotlib>=3.8,<4.0
 mlflow>=2.9,<3.0
+prefect>=3.0,<4.0        # bonus: workflow orchestration (orchestration/pipeline_flow.py)
 pytest>=8.0,<9.0
 ruff>=0.6,<1.0

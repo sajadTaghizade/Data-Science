@@ -136,6 +136,26 @@
 ### یک دستور برای همه‌چیز — `run_pipeline.py`
 اول پایپلاین آموزش، بعد پایپلاین پیش‌بینی را اجرا می‌کند.
 
+### اورکستریشن با Prefect (امتیازی — ابزار workflow)
+صورت‌پروژه سه راه برای خودکارسازی می‌دهد: `run_pipeline.py`، GitHub Actions، یا یک
+**ابزار مدیریت workflow مثل Apache Airflow یا Prefect (۵٪ امتیازی)**. ما راه سوم را هم
+اضافه کردیم: فایل `orchestration/pipeline_flow.py` **همان مراحل** را به‌صورت یک **DAG در
+Prefect** تعریف می‌کند:
+
+`import_to_db → load_data → preprocess → train_model → make_predictions`
+
+Prefect فقط **ارکستریت** می‌کند؛ چون همه‌ی مراحل seed دارند، خروجی‌ها **دقیقاً مثل
+`run_pipeline.py`** است (همان ۰٫۸۹۳ و همان وزن‌ها) — فقط retry، لاگ و نمای گرافیکی/UI
+اضافه می‌شود. اجرا:
+
+```bash
+pip install prefect
+prefect server start                     # UI روی http://127.0.0.1:4200
+python orchestration/pipeline_flow.py
+```
+
+اسکرینِ اجرای موفق (هر ۵ task با وضعیت `Completed`) در `docs/prefect_pipeline_run.png`.
+
 ### جدول `recommendations` در دیتابیس
 
 خروجی نهایی در یک جدول جدید در SQLite ذخیره می‌شود:
@@ -207,6 +227,7 @@ python scripts/recommend_cli.py --question-id 79907170 --top-k 5
 | `scripts/recommend_cli.py` | دموی تعاملی خط فرمان (با question-id یا متن آزاد؛ پشتیبانی از MMR). |
 | `scripts/database_connection.py`, `import_to_db.py`, `load_data.py`, `preprocess.py` | از فاز ۲: اتصال، ساخت دیتابیس، بارگذاری، پاک‌سازی متن. |
 | `train_pipeline.py` / `predict_pipeline.py` / `run_pipeline.py` | اورکستریتورهای پایپلاین. |
+| `orchestration/pipeline_flow.py` | امتیازی: همان مراحل به‌صورت یک DAG در Prefect. |
 | `tests/` | تست‌های واحد: متریک‌ها، صحت BM25، واسط مدل‌ها، استنتاج. |
 | `phase3_report.ipynb` | گزارش اجراشده با نمودار و دموی زنده. |
 

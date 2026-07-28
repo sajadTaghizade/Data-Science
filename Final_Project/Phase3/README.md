@@ -5,7 +5,8 @@ Phase 3 takes the exploratory recommender from Phase 2 and turns it into a
 models are compared and the best is selected, it is trained and evaluated with
 proper ranking metrics, and it is wired into **two automated pipelines** — one
 that **trains** the model and one that **predicts** and **saves recommendations
-back into the database**. MLflow experiment tracking is included as the bonus.
+back into the database**. Two bonus tracks are included: **MLflow** experiment
+tracking and a **Prefect** DAG that orchestrates the whole pipeline.
 
 ## Task
 
@@ -21,8 +22,9 @@ recommendations are what we save back to the database.
 | 1. Model development & task definition | Seven candidates compared — `title_word_tfidf`, `document_word_tfidf`, `char_wb_tfidf`, `lsa_document`, **`bm25_document`**, **`document_prf`** (pseudo-relevance feedback), and a **hybrid** — under a temporal train/validation/test split; best chosen by **cross-validated nDCG@10**. |
 | 2. Model training & evaluation | **BM25 tuned** on validation; hybrid weights searched via Dirichlet sampling with 5-fold CV; the selected model is evaluated **once** on the held-out test set with Hit@K, Recall@K, MAP@K, MRR@K, nDCG@K and a **graded** `gnDCG@K`, plus random/popularity baselines, a **leave-one-out ablation**, and an **error analysis**. |
 | 3. Integration into the pipeline (automation) | Separate **training** (`train_pipeline.py`) and **prediction** (`predict_pipeline.py`) pipelines; `run_pipeline.py` runs both with one command. Predictions are written to a `recommendations` table in SQLite. **MMR diversity** re-ranking is available at inference. |
+| 3 (bonus). Workflow-automation tool | The same stages are also orchestrated as a **Prefect DAG** — `orchestration/pipeline_flow.py` — the *Airflow/Prefect* option from the brief. Prefect only orchestrates, so the results are identical; it adds task-level retries, logging, and a UI/graph view. |
 | 4. MLflow model management (bonus) | Every training run logs params, metrics, and artefacts (model + report) to a local `mlruns/` store; browse with the MLflow UI. |
-| 5. Final presentation video | Add the Google Drive link in `video_link.txt` (or here) at submission time. |
+| 5. Final presentation video | Google Drive link provided in **`video_link.txt`** at the project root. |
 
 ## Results (26,162-question dataset)
 
@@ -93,6 +95,8 @@ Phase3/
 ├── train_pipeline.py                   # training pipeline (single command)
 ├── predict_pipeline.py                 # prediction pipeline (single command)
 ├── run_pipeline.py                     # both pipelines end-to-end
+├── orchestration/pipeline_flow.py      # BONUS: same stages as a Prefect DAG
+├── docs/prefect_pipeline_run.png       # BONUS: Prefect UI — successful DAG run
 ├── tests/                              # pytest: metrics, BM25, models, inference
 ├── phase3_report.ipynb                 # executed report: selection, metrics, live demo
 ├── requirements.txt
@@ -176,6 +180,32 @@ ORDER BY r.rank;
 ```
 
 A CSV copy is also written to `data/reports/recommendations.csv`.
+
+## Prefect orchestration (bonus)
+
+The Phase 3 brief lets you automate the pipeline three ways: a plain
+`run_pipeline.py`, GitHub Actions, or a **workflow-automation tool (Apache Airflow
+or Prefect)**. We ship the last one too: `orchestration/pipeline_flow.py` defines
+the exact same stages as a **Prefect DAG**
+
+```text
+import_to_db → load_data → preprocess → train_model → make_predictions
+```
+
+so the whole train-then-predict workflow runs as one observable graph with
+task-level state, retries, and logging. Prefect only *orchestrates* — every stage
+is seeded, so the metrics are byte-for-byte identical to `run_pipeline.py`.
+
+```bash
+pip install prefect
+# optional: start the UI first, then open http://127.0.0.1:4200
+prefect server start
+# run the DAG
+python orchestration/pipeline_flow.py
+```
+
+`docs/prefect_pipeline_run.png` is a screenshot of a successful run in the Prefect
+UI (all five tasks `Completed`).
 
 ## MLflow (bonus)
 
